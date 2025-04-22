@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -5,6 +6,7 @@ using UnityEngine.Tilemaps;
 public class MapManager : MonoBehaviour
 {
     public static MapManager Instance { get; private set; }
+    public bool IsReady { get; private set; } = false;
 
     [SerializeField]
     private OverlayTile overlayTilePrefab;
@@ -14,6 +16,10 @@ public class MapManager : MonoBehaviour
 
     private Dictionary<Vector2Int, OverlayTile> map;
 
+    [SerializeField]
+    private Tilemap tilemap;
+    public Tilemap Tilemap => tilemap;
+
     private void Awake()
     {
         if (Instance != null)
@@ -21,13 +27,18 @@ public class MapManager : MonoBehaviour
             Debug.Log("MapManager instance already exists");
         }
         Instance = this;
+
+        map = new Dictionary<Vector2Int, OverlayTile>();
     }
 
-    void Start()
+    private void Start()
     {
-        map = new Dictionary<Vector2Int, OverlayTile>();
-        var tilemap = gameObject.GetComponentInChildren<Tilemap>();
+        GenerateOverlayTiles();
+        IsReady = true;
+    }
 
+    private void GenerateOverlayTiles()
+    {
         BoundsInt bounds = tilemap.cellBounds;
 
         for (int z = bounds.max.z; z >= bounds.min.z; z--)
@@ -38,7 +49,6 @@ public class MapManager : MonoBehaviour
                 {
                     var tileLocation = new Vector3Int(x, y, z);
                     var tileKey = new Vector2Int(x, y);
-
                     if (tilemap.HasTile(tileLocation) && !map.ContainsKey(tileKey))
                     {
                         var overlayTile = Instantiate(
@@ -65,4 +75,41 @@ public class MapManager : MonoBehaviour
     }
 
     void Update() { }
+
+    public OverlayTile GetOverlayTileFromTileLocation(Vector2Int tileLocation)
+    {
+        if (map.ContainsKey(tileLocation))
+        {
+            return map[tileLocation];
+        }
+        else
+        {
+            Debug.LogWarning($"Tile at {tileLocation} not found.");
+            return null;
+        }
+    }
+
+    public Vector3Int? GetTilePosFromTileCoordinates(Vector2Int tileCoordinates)
+    {
+        if (tilemap == null)
+        {
+            Debug.LogWarning("Tilemap not found.");
+            return null;
+        }
+
+        BoundsInt bounds = tilemap.cellBounds;
+        int x = tileCoordinates.x;
+        int y = tileCoordinates.y;
+
+        for (int z = bounds.max.z; z >= bounds.min.z; z--)
+        {
+            var tilePos = new Vector3Int(x, y, z);
+            if (tilemap.HasTile(tilePos))
+            {
+                return tilePos;
+            }
+        }
+
+        return null;
+    }
 }
