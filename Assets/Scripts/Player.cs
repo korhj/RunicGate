@@ -1,12 +1,13 @@
 using System;
 using System.Collections;
 using Unity.VisualScripting;
+using UnityEditor;
 using UnityEditor.Tilemaps;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
-public class PlayerController : MonoBehaviour
+public class Player : MonoBehaviour
 {
     [SerializeField]
     private SpriteRenderer playerSpriteRenderer;
@@ -14,25 +15,39 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     float playerSpeed = 5f;
 
+    private PlayerInput playerInput;
     InputAction moveAction;
-
+    InputAction interact;
     private Vector3Int currentTilePos;
     private Vector3Int targetTilePos;
+    private Vector3 targetWorldPos;
 
     private bool isMoving;
+    private Vector2Int playerDir;
 
     IEnumerator Start()
     {
         moveAction = InputSystem.actions.FindAction("Move");
+
+        playerInput = GetComponent<PlayerInput>();
+
         isMoving = false;
+        playerDir = new(0, 0);
 
         yield return new WaitUntil(
             () => MapManager.Instance != null && MapManager.Instance.IsReady
         );
+
         currentTilePos = new(0, 0, 0);
         targetTilePos = new(0, 0, 0);
+        targetWorldPos = new(0, 0, 0);
 
         MovePlayerToTile(new Vector3Int(0, 0, 0));
+    }
+
+    private void Test(InputAction.CallbackContext context)
+    {
+        Debug.Log(context);
     }
 
     void Update()
@@ -40,20 +55,32 @@ public class PlayerController : MonoBehaviour
         if (!isMoving)
         {
             Vector2 moveValue = moveAction.ReadValue<Vector2>();
+            //Debug.Log(moveValue);
             if (moveValue.x != 0)
             {
+                //Debug.Log(moveValue);
+                playerDir = new Vector2Int((int)Mathf.Sign(moveValue.x), 0);
                 SetTargetTile(new Vector2Int((int)Mathf.Sign(moveValue.x), 0));
             }
             else if (moveValue.y != 0)
             {
+                playerDir = new Vector2Int(0, (int)Mathf.Sign(moveValue.y));
                 SetTargetTile(new Vector2Int(0, (int)Mathf.Sign(moveValue.y)));
             }
         }
         else
         {
-            Debug.Log($"MoveTowards {targetTilePos}");
+            //Debug.Log($"MoveTowards {targetTilePos}");
             MoveTowardsTargetTile();
         }
+    }
+
+    private void OnInteract()
+    {
+        Debug.Log("OnInteract");
+        MapManager.Instance.AddRunicGate(
+            currentTilePos + new Vector3Int(playerDir.x, playerDir.y, currentTilePos.z + 1)
+        );
     }
 
     private void SetTargetTile(Vector2Int moveDirection)
@@ -71,6 +98,7 @@ public class PlayerController : MonoBehaviour
             if (Mathf.Abs(currentTilePos.z - nextTile.Value.z) <= 1)
             {
                 targetTilePos = nextTile.Value;
+                targetWorldPos = MapManager.Instance.Tilemap.GetCellCenterWorld(targetTilePos);
                 isMoving = true;
             }
             else
@@ -82,17 +110,22 @@ public class PlayerController : MonoBehaviour
 
     private void MoveTowardsTargetTile()
     {
-        float step = playerSpeed * Time.deltaTime;
-        Vector3 currentPos = transform.position;
+        Vector3 movementDirection = targetWorldPos - transform.position;
+        float movementDistance = playerSpeed * Time.deltaTime;
 
-        Vector3 worldTargetPos = MapManager.Instance.Tilemap.GetCellCenterWorld(targetTilePos);
-        transform.position = Vector3.MoveTowards(currentPos, worldTargetPos, step);
-
-        if (Vector3.Distance(currentPos, worldTargetPos) < 0.001f)
+        if (movementDistance >= movementDirection.magnitude)
         {
+            transform.position = targetWorldPos;
             isMoving = false;
-            transform.position = worldTargetPos;
             currentTilePos = targetTilePos;
+        }
+        else
+        {
+            transform.position = Vector3.MoveTowards(
+                transform.position,
+                targetWorldPos,
+                movementDistance
+            );
         }
     }
 

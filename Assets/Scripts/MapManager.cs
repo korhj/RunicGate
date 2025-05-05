@@ -8,17 +8,23 @@ public class MapManager : MonoBehaviour
     public static MapManager Instance { get; private set; }
     public bool IsReady { get; private set; } = false;
 
-    [SerializeField]
-    private OverlayTile overlayTilePrefab;
+    //[SerializeField]
+    //private OverlayTile overlayTilePrefab;
 
-    [SerializeField]
-    private GameObject overlayContainer;
+    //[SerializeField]
+    //private GameObject overlayContainer;
 
-    private Dictionary<Vector2Int, OverlayTile> map;
+    //private Dictionary<Vector2Int, OverlayTile> map;
+
 
     [SerializeField]
     private Tilemap tilemap;
     public Tilemap Tilemap => tilemap;
+
+    [SerializeField]
+    private GameObject runicGate;
+    private Dictionary<Vector3Int, GameObject> mapEntities;
+    private List<GameObject> runicGates;
 
     private void Awake()
     {
@@ -28,15 +34,18 @@ public class MapManager : MonoBehaviour
         }
         Instance = this;
 
-        map = new Dictionary<Vector2Int, OverlayTile>();
+        //map = new Dictionary<Vector2Int, OverlayTile>();
+        mapEntities = new Dictionary<Vector3Int, GameObject>();
+        runicGates = new List<GameObject>();
     }
 
     private void Start()
     {
-        GenerateOverlayTiles();
+        //GenerateOverlayTiles();
         IsReady = true;
     }
 
+    /*
     private void GenerateOverlayTiles()
     {
         BoundsInt bounds = tilemap.cellBounds;
@@ -74,7 +83,7 @@ public class MapManager : MonoBehaviour
         }
     }
 
-    void Update() { }
+   
 
     public OverlayTile GetOverlayTileFromTileLocation(Vector2Int tileLocation)
     {
@@ -88,6 +97,8 @@ public class MapManager : MonoBehaviour
             return null;
         }
     }
+    */
+    void Update() { }
 
     public Vector3Int? GetTilePosFromTileCoordinates(Vector2Int tileCoordinates)
     {
@@ -111,5 +122,33 @@ public class MapManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    public void AddRunicGate(Vector3Int tileCoordinates)
+    {
+        if (runicGates.Count >= 2)
+        {
+            Debug.Log("AddRunicGate: 2 runicGates already exists");
+            return;
+        }
+
+        if (tilemap == null)
+        {
+            Debug.LogWarning("Tilemap not found.");
+            return;
+        }
+
+        if (tilemap.HasTile(tileCoordinates) || mapEntities.ContainsKey(tileCoordinates))
+        {
+            Debug.Log("AddRunicGate: Given coordinates are occupied");
+            return;
+        }
+        GameObject gate = Instantiate(
+            runicGate,
+            tilemap.GetCellCenterWorld(tileCoordinates),
+            Quaternion.identity
+        );
+        runicGates.Add(gate);
+        mapEntities.Add(tileCoordinates, gate);
     }
 }

@@ -36,9 +36,9 @@
                     "name": "Interact",
                     "type": "Button",
                     "id": "852140f2-7766-474d-8707-702459ba45f3",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
-                    "interactions": "Hold",
+                    "interactions": "",
                     "initialStateCheck": false
                 },
                 {
@@ -54,7 +54,7 @@
                     "name": "Jump",
                     "type": "Button",
                     "id": "f1ba0d36-48eb-4cd5-b651-1c94a6531f70",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -93,7 +93,7 @@
                     "id": "978bfe49-cc26-4a3d-ab7b-7d7a29327403",
                     "path": "<Gamepad>/leftStick",
                     "interactions": "",
-                    "processors": "",
+                    "processors": "StickDeadzone",
                     "groups": ";Gamepad",
                     "action": "Move",
                     "isComposite": false,
@@ -133,7 +133,7 @@
                     "isPartOfComposite": false
                 },
                 {
-                    "name": "up",
+                    "name": "Up",
                     "id": "bd694734-8684-4586-b512-91ef8c005d7f",
                     "path": "<Keyboard>/w",
                     "interactions": "",
@@ -144,7 +144,7 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "down",
+                    "name": "Down",
                     "id": "6dc45814-4b7b-49b2-a41f-12a678efd9f7",
                     "path": "<Keyboard>/s",
                     "interactions": "",
@@ -155,8 +155,8 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "left",
-                    "id": "c009f57a-9f9d-4193-a686-37c4155cf107",
+                    "name": "Left",
+                    "id": "af91ac3b-d15f-470c-ad09-92a11230434d",
                     "path": "<Keyboard>/a",
                     "interactions": "",
                     "processors": "",
@@ -166,8 +166,8 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "right",
-                    "id": "0504a455-1dde-4f60-9ceb-44bf30670d82",
+                    "name": "Right",
+                    "id": "817b75d7-9a45-4640-b668-c7600d14013c",
                     "path": "<Keyboard>/d",
                     "interactions": "",
                     "processors": "",
