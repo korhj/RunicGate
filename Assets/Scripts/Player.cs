@@ -41,11 +41,6 @@ public class Player : MonoBehaviour
         MovePlayerToTile(new Vector3Int(0, 0, 0));
     }
 
-    private void Test(InputAction.CallbackContext context)
-    {
-        Debug.Log(context);
-    }
-
     void Update()
     {
         if (!isMoving)
