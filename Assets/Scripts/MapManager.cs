@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -8,14 +9,15 @@ public class MapManager : MonoBehaviour
     public static MapManager Instance { get; private set; }
     public bool IsReady { get; private set; } = false;
 
-    //[SerializeField]
-    //private OverlayTile overlayTilePrefab;
+    /*
+    [SerializeField]
+    private OverlayTile overlayTilePrefab;
 
-    //[SerializeField]
-    //private GameObject overlayContainer;
+    [SerializeField]
+    private GameObject overlayContainer;
 
-    //private Dictionary<Vector2Int, OverlayTile> map;
-
+    private Dictionary<Vector2Int, OverlayTile> map;
+    */
 
     [SerializeField]
     private Tilemap tilemap;
@@ -23,8 +25,7 @@ public class MapManager : MonoBehaviour
 
     [SerializeField]
     private GameObject runicGate;
-    private Dictionary<Vector3Int, GameObject> mapEntities;
-    private List<GameObject> runicGates;
+    private List<(GameObject, Vector3Int)> runicGates;
 
     private void Awake()
     {
@@ -34,9 +35,13 @@ public class MapManager : MonoBehaviour
         }
         Instance = this;
 
+        if (tilemap == null)
+        {
+            Debug.LogError("Tilemap not found.");
+        }
+
         //map = new Dictionary<Vector2Int, OverlayTile>();
-        mapEntities = new Dictionary<Vector3Int, GameObject>();
-        runicGates = new List<GameObject>();
+        runicGates = new List<(GameObject, Vector3Int)>();
     }
 
     private void Start()
@@ -83,7 +88,7 @@ public class MapManager : MonoBehaviour
         }
     }
 
-   
+    void Update() { }
 
     public OverlayTile GetOverlayTileFromTileLocation(Vector2Int tileLocation)
     {
@@ -98,16 +103,8 @@ public class MapManager : MonoBehaviour
         }
     }
     */
-    void Update() { }
-
     public Vector3Int? GetTilePosFromTileCoordinates(Vector2Int tileCoordinates)
     {
-        if (tilemap == null)
-        {
-            Debug.LogWarning("Tilemap not found.");
-            return null;
-        }
-
         BoundsInt bounds = tilemap.cellBounds;
         int x = tileCoordinates.x;
         int y = tileCoordinates.y;
@@ -124,31 +121,45 @@ public class MapManager : MonoBehaviour
         return null;
     }
 
+    public void PlayerInteract(Vector3Int interactedTileCoordinates)
+    {
+        BoundsInt bounds = tilemap.cellBounds;
+        int x = interactedTileCoordinates.x;
+        int y = interactedTileCoordinates.y;
+
+        for (int z = bounds.max.z; z > interactedTileCoordinates.z; z--)
+        {
+            var tilePos = new Vector3Int(x, y, z);
+            if (tilemap.HasTile(tilePos))
+            {
+                Debug.Log("Tile Occupied");
+                return;
+            }
+        }
+
+        if (tilemap.HasTile(interactedTileCoordinates))
+        {
+            AddRunicGate(interactedTileCoordinates);
+        }
+    }
+
     public void AddRunicGate(Vector3Int tileCoordinates)
     {
         if (runicGates.Count >= 2)
         {
-            Debug.Log("AddRunicGate: 2 runicGates already exists");
+            Debug.Log("Too many runicGates");
             return;
         }
 
-        if (tilemap == null)
+        if (!runicGates.Any(i => i.Item2 == tileCoordinates))
         {
-            Debug.LogWarning("Tilemap not found.");
-            return;
+            GameObject gate = Instantiate(
+                runicGate,
+                tilemap.GetCellCenterWorld(tileCoordinates),
+                Quaternion.identity
+            );
+            runicGates.Add((gate, tileCoordinates));
+            Debug.Log(gate.transform.position);
         }
-
-        if (tilemap.HasTile(tileCoordinates) || mapEntities.ContainsKey(tileCoordinates))
-        {
-            Debug.Log("AddRunicGate: Given coordinates are occupied");
-            return;
-        }
-        GameObject gate = Instantiate(
-            runicGate,
-            tilemap.GetCellCenterWorld(tileCoordinates),
-            Quaternion.identity
-        );
-        runicGates.Add(gate);
-        mapEntities.Add(tileCoordinates, gate);
     }
 }

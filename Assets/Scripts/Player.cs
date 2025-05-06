@@ -5,7 +5,6 @@ using UnityEditor;
 using UnityEditor.Tilemaps;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Tilemaps;
 
 public class Player : MonoBehaviour
 {
@@ -17,7 +16,6 @@ public class Player : MonoBehaviour
 
     private PlayerInput playerInput;
     InputAction moveAction;
-    InputAction interact;
     private Vector3Int currentTilePos;
     private Vector3Int targetTilePos;
     private Vector3 targetWorldPos;
@@ -28,8 +26,6 @@ public class Player : MonoBehaviour
     IEnumerator Start()
     {
         moveAction = InputSystem.actions.FindAction("Move");
-
-        playerInput = GetComponent<PlayerInput>();
 
         isMoving = false;
         playerDir = new(0, 0);
@@ -77,9 +73,8 @@ public class Player : MonoBehaviour
 
     private void OnInteract()
     {
-        Debug.Log("OnInteract");
-        MapManager.Instance.AddRunicGate(
-            currentTilePos + new Vector3Int(playerDir.x, playerDir.y, currentTilePos.z + 1)
+        MapManager.Instance.PlayerInteract(
+            currentTilePos + new Vector3Int(playerDir.x, playerDir.y, currentTilePos.z)
         );
     }
 
@@ -103,7 +98,7 @@ public class Player : MonoBehaviour
             }
             else
             {
-                Debug.Log("Path blocked");
+                //Debug.Log("Path blocked");
             }
         }
     }
