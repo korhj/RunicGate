@@ -68,8 +68,9 @@ public class Player : MonoBehaviour
 
     private void OnInteract()
     {
+        Debug.Log($"Player currentTilePos {currentTilePos}");
         MapManager.Instance.PlayerInteract(
-            currentTilePos + new Vector3Int(playerDir.x, playerDir.y, currentTilePos.z)
+            currentTilePos + new Vector3Int(playerDir.x, playerDir.y, 0)
         );
     }
 
