@@ -7,15 +7,10 @@ using UnityEngine.Tilemaps;
 public class MapManager : MonoBehaviour
 {
     public static MapManager Instance { get; private set; }
-    public bool IsReady { get; private set; } = false;
 
     [SerializeField]
     private Tilemap tilemap;
     public Tilemap Tilemap => tilemap;
-
-    [SerializeField]
-    private GameObject runicGate;
-    private List<(GameObject, Vector3Int)> runicGates;
 
     private void Awake()
     {
@@ -29,16 +24,14 @@ public class MapManager : MonoBehaviour
         {
             Debug.LogError("Tilemap not found.");
         }
-
-        runicGates = new List<(GameObject, Vector3Int)>();
     }
 
-    private void Start()
+    public Vector3 TileToWorld(Vector3Int tileCooridnates)
     {
-        IsReady = true;
+        return tilemap.GetCellCenterWorld(tileCooridnates);
     }
 
-    public Vector3Int? GetTilePosFromTileCoordinates(Vector2Int tileCoordinates)
+    public Vector3Int? GetTopTileAt(Vector2Int tileCoordinates)
     {
         BoundsInt bounds = tilemap.cellBounds;
         int x = tileCoordinates.x;
@@ -46,55 +39,30 @@ public class MapManager : MonoBehaviour
 
         for (int z = bounds.max.z; z >= bounds.min.z; z--)
         {
-            var tilePos = new Vector3Int(x, y, z);
-            if (tilemap.HasTile(tilePos))
+            var currentTileCoordinates = new Vector3Int(x, y, z);
+            if (tilemap.HasTile(currentTileCoordinates))
             {
-                return tilePos;
+                return currentTileCoordinates;
             }
         }
 
         return null;
     }
 
-    public void PlayerInteract(Vector3Int interactedTileCoordinates)
+    public bool IsTileAccessible(Vector3Int tileCoordinates)
     {
         BoundsInt bounds = tilemap.cellBounds;
-        int x = interactedTileCoordinates.x;
-        int y = interactedTileCoordinates.y;
+        int x = tileCoordinates.x;
+        int y = tileCoordinates.y;
 
-        for (int z = bounds.max.z; z > interactedTileCoordinates.z; z--)
+        for (int z = bounds.max.z; z > tileCoordinates.z; z--)
         {
-            var tilePos = new Vector3Int(x, y, z);
-            if (tilemap.HasTile(tilePos))
+            var currentTileCoordinates = new Vector3Int(x, y, z);
+            if (tilemap.HasTile(currentTileCoordinates))
             {
-                Debug.Log("Tile Occupied");
-                return;
+                return false;
             }
         }
-        Debug.Log($"PlayerInteract after loop {interactedTileCoordinates}");
-        if (tilemap.HasTile(interactedTileCoordinates))
-        {
-            AddRunicGate(interactedTileCoordinates);
-        }
-    }
-
-    public void AddRunicGate(Vector3Int tileCoordinates)
-    {
-        if (runicGates.Count >= 2)
-        {
-            Debug.Log("Too many runicGates");
-            return;
-        }
-
-        if (!runicGates.Any(i => i.Item2 == tileCoordinates))
-        {
-            GameObject gate = Instantiate(
-                runicGate,
-                tilemap.GetCellCenterWorld(tileCoordinates),
-                Quaternion.identity
-            );
-            runicGates.Add((gate, tileCoordinates));
-            Debug.Log(gate.transform.position);
-        }
+        return tilemap.HasTile(tileCoordinates);
     }
 }

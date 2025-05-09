@@ -1,17 +1,21 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class RunicGate : MonoBehaviour
 {
-    private List<GameObject> runicGates;
+    public event EventHandler<OnRunicGateEnteredEventArgs> OnRunicGateEntered;
 
-    void Start()
+    public class OnRunicGateEnteredEventArgs : EventArgs
     {
-        runicGates = new List<GameObject>();
+        public GameObject runicGateGameObject;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log("Collision");
+        OnRunicGateEntered?.Invoke(
+            this,
+            new OnRunicGateEnteredEventArgs { runicGateGameObject = this.gameObject }
+        );
     }
 }
