@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -74,14 +75,28 @@ public class Player : MonoBehaviour
 
     private void OnInteract()
     {
-        bool targetTileIsAccessible = MapManager.Instance.IsTileAccessible(
-            currentTileCoordinates + new Vector3Int(playerDirection.x, playerDirection.y, 0)
-        );
+        Vector3Int tileToCheck =
+            currentTileCoordinates + new Vector3Int(playerDirection.x, playerDirection.y, 0);
+        Vector3 worldToCheck = MapManager.Instance.TileToWorld(tileToCheck);
+        Collider2D collider = Physics2D.OverlapPoint(worldToCheck);
+
+        if (collider != null)
+        {
+            if (collider.TryGetComponent<IPlayerInteractable>(out IPlayerInteractable interactable))
+            {
+                interactable.Interact(tileToCheck);
+                return;
+            }
+            if (collider.TryGetComponent<RunicGate>(out _))
+            {
+                runicGateManager.DeactivateRunicGate(tileToCheck);
+                return;
+            }
+        }
+        bool targetTileIsAccessible = MapManager.Instance.IsTileAccessible(tileToCheck);
         if (targetTileIsAccessible)
         {
-            runicGateManager.ToggleRunicGate(
-                currentTileCoordinates + new Vector3Int(playerDirection.x, playerDirection.y, 0)
-            );
+            runicGateManager.ActivateRunicGate(tileToCheck);
         }
     }
 

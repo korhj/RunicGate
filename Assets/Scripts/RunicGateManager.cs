@@ -62,6 +62,37 @@ public class RunicGateManager : MonoBehaviour
         );
     }
 
+    public void DeactivateRunicGate(Vector3Int tileCoordinates)
+    {
+        for (int i = 0; i < runicGates.Length; i++)
+        {
+            if (
+                runicGates[i].TileCoordinates == tileCoordinates
+                && runicGates[i].RunicGateObject.activeSelf
+            )
+            {
+                runicGates[i].RunicGateObject.SetActive(false);
+                return;
+            }
+        }
+    }
+
+    public void ActivateRunicGate(Vector3Int tileCoordinates)
+    {
+        for (int i = 0; i < runicGates.Length; i++)
+        {
+            if (!runicGates[i].RunicGateObject.activeSelf)
+            {
+                runicGates[i].RunicGateObject.transform.position = MapManager.Instance.TileToWorld(
+                    tileCoordinates
+                );
+                runicGates[i].TileCoordinates = tileCoordinates;
+                runicGates[i].RunicGateObject.SetActive(true);
+                return;
+            }
+        }
+    }
+    /*
     public void ToggleRunicGate(Vector3Int tileCoordinates)
     {
         for (int i = 0; i < runicGates.Length; i++)
@@ -89,6 +120,7 @@ public class RunicGateManager : MonoBehaviour
             }
         }
     }
+    */
 }
 
 struct RunicGateData
