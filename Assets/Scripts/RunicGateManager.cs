@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class RunicGateManager : MonoBehaviour
 {
@@ -62,6 +63,21 @@ public class RunicGateManager : MonoBehaviour
         );
     }
 
+    public bool TileHasGate(Vector3Int tileCoordinates)
+    {
+        for (int i = 0; i < runicGates.Length; i++)
+        {
+            if (
+                runicGates[i].TileCoordinates == tileCoordinates
+                && runicGates[i].RunicGateObject.activeSelf
+            )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void DeactivateRunicGate(Vector3Int tileCoordinates)
     {
         for (int i = 0; i < runicGates.Length; i++)
@@ -92,35 +108,6 @@ public class RunicGateManager : MonoBehaviour
             }
         }
     }
-    /*
-    public void ToggleRunicGate(Vector3Int tileCoordinates)
-    {
-        for (int i = 0; i < runicGates.Length; i++)
-        {
-            if (
-                runicGates[i].TileCoordinates == tileCoordinates
-                && runicGates[i].RunicGateObject.activeSelf
-            )
-            {
-                runicGates[i].RunicGateObject.SetActive(false);
-                return;
-            }
-        }
-        for (int i = 0; i < runicGates.Length; i++)
-        {
-            if (!runicGates[i].RunicGateObject.activeSelf)
-            {
-                runicGates[i].RunicGateObject.transform.position = MapManager.Instance.TileToWorld(
-                    tileCoordinates
-                );
-                runicGates[i].TileCoordinates = tileCoordinates;
-
-                runicGates[i].RunicGateObject.SetActive(true);
-                return;
-            }
-        }
-    }
-    */
 }
 
 struct RunicGateData

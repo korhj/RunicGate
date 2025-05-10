@@ -1,7 +1,15 @@
+using System;
 using UnityEngine;
 
 public class CursedMimic : MonoBehaviour, IPlayerInteractable
 {
+    public event EventHandler<OnTouchedMimicEventArgs> OnTouchedMimic;
+
+    public class OnTouchedMimicEventArgs : EventArgs
+    {
+        public GameObject mimicGameObject;
+    }
+
     private Vector3Int tileCoordinates;
 
     void Start()
@@ -14,7 +22,10 @@ public class CursedMimic : MonoBehaviour, IPlayerInteractable
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Debug.Log($"Collision this: {transform.position} other: {other.transform.position}");
+        OnTouchedMimic?.Invoke(
+            this,
+            new OnTouchedMimicEventArgs { mimicGameObject = this.gameObject }
+        );
     }
 
     private void MoveMimicToTile(Vector3Int newTileCoordinates)
@@ -24,8 +35,15 @@ public class CursedMimic : MonoBehaviour, IPlayerInteractable
         tileCoordinates = newTileCoordinates;
     }
 
-    public GameObject Interact(Vector3Int coordinates)
+    public void DropMimic(Vector3Int coordinates)
     {
-        throw new System.NotImplementedException();
+        gameObject.SetActive(true);
+        MoveMimicToTile(coordinates);
+    }
+
+    public GameObject Interact()
+    {
+        gameObject.SetActive(false);
+        return gameObject;
     }
 }

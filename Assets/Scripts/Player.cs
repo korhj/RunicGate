@@ -1,6 +1,6 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -11,6 +11,9 @@ public class Player : MonoBehaviour
 
     [SerializeField]
     private RunicGateManager runicGateManager;
+
+    [SerializeField]
+    private CursedMimic cursedMimicReference;
 
     [SerializeField]
     float playerSpeed = 5f;
@@ -32,6 +35,7 @@ public class Player : MonoBehaviour
     private Vector3 TargetTileWorldCoordinates => _targetTileWorldCoordinates;
     private bool isMoving;
     private bool isTeleporting;
+    private GameObject carriedObject;
 
     private Vector2Int playerDirection;
 
@@ -49,6 +53,14 @@ public class Player : MonoBehaviour
 
         runicGateManager.OnTeleport += (_, e) =>
             StartCoroutine(TeleportWithCooldown(e.targetTileCoordinates, e.exitGateCollider));
+        cursedMimicReference.OnTouchedMimic += (_, e) =>
+        {
+            if (carriedObject == null)
+            {
+                carriedObject = e.mimicGameObject;
+                cursedMimicReference.Interact();
+            }
+        };
     }
 
     void Update()
@@ -59,12 +71,12 @@ public class Player : MonoBehaviour
             if (moveValue.x != 0)
             {
                 playerDirection = new Vector2Int((int)Mathf.Sign(moveValue.x), 0);
-                SetTargetTile();
+                SetTargetTile(currentTileCoordinates);
             }
             else if (moveValue.y != 0)
             {
                 playerDirection = new Vector2Int(0, (int)Mathf.Sign(moveValue.y));
-                SetTargetTile();
+                SetTargetTile(currentTileCoordinates);
             }
         }
         else
@@ -75,49 +87,84 @@ public class Player : MonoBehaviour
 
     private void OnInteract()
     {
+        if (isMoving)
+        {
+            return;
+        }
+
         Vector3Int tileToCheck =
             currentTileCoordinates + new Vector3Int(playerDirection.x, playerDirection.y, 0);
+        bool targetTileIsAccessible = MapManager.Instance.IsTileAccessible(tileToCheck);
+
+        if (carriedObject != null && targetTileIsAccessible)
+        {
+            TryDropCarriedObject(tileToCheck);
+            return;
+        }
+
         Vector3 worldToCheck = MapManager.Instance.TileToWorld(tileToCheck);
         Collider2D collider = Physics2D.OverlapPoint(worldToCheck);
 
         if (collider != null)
         {
-            if (collider.TryGetComponent<IPlayerInteractable>(out IPlayerInteractable interactable))
-            {
-                interactable.Interact(tileToCheck);
-                return;
-            }
-            if (collider.TryGetComponent<RunicGate>(out _))
-            {
-                runicGateManager.DeactivateRunicGate(tileToCheck);
-                return;
-            }
+            InteractWithObject(collider, tileToCheck);
+            return;
         }
-        bool targetTileIsAccessible = MapManager.Instance.IsTileAccessible(tileToCheck);
+
         if (targetTileIsAccessible)
         {
             runicGateManager.ActivateRunicGate(tileToCheck);
         }
     }
 
-    private void SetTargetTile()
+    private void TryDropCarriedObject(Vector3Int tileToCheck)
     {
-        if (isMoving)
-            return;
+        if (carriedObject.TryGetComponent<CursedMimic>(out CursedMimic cursedMimic))
+        {
+            bool tileHasGate = runicGateManager.TileHasGate(tileToCheck);
+            if (!tileHasGate)
+            {
+                cursedMimic.DropMimic(tileToCheck);
+                carriedObject = null;
+            }
+        }
+    }
 
+    private void InteractWithObject(Collider2D collider, Vector3Int tileToCheck)
+    {
+        if (collider.TryGetComponent<IPlayerInteractable>(out IPlayerInteractable interactable))
+        {
+            GameObject interactResult = interactable.Interact();
+            if (interactResult != null)
+            {
+                carriedObject = interactResult;
+                Debug.Log($"carriedObject {carriedObject}");
+            }
+            return;
+        }
+        if (collider.TryGetComponent<RunicGate>(out _))
+        {
+            runicGateManager.DeactivateRunicGate(tileToCheck);
+        }
+    }
+
+    private bool SetTargetTile(Vector3Int startingTile)
+    {
         Vector2Int targetCoordinates =
-            new Vector2Int(currentTileCoordinates.x, currentTileCoordinates.y) + playerDirection;
+            new Vector2Int(startingTile.x, startingTile.y) + playerDirection;
 
         Vector3Int? nextTile = MapManager.Instance.GetTopTileAt(targetCoordinates);
 
         if (nextTile.HasValue)
         {
-            if (Mathf.Abs(currentTileCoordinates.z - nextTile.Value.z) <= 1)
+            if (Mathf.Abs(startingTile.z - nextTile.Value.z) <= 1)
             {
                 TargetTileCoordinates = nextTile.Value;
                 isMoving = true;
+                return true;
             }
         }
+        return false;
     }
 
     private void MoveTowardsTargetTile()
@@ -150,24 +197,6 @@ public class Player : MonoBehaviour
         isMoving = false;
     }
 
-    private bool SetTargetTileForTeleport(Vector3Int exitTileCoordinates)
-    {
-        Vector2Int targetCoordinates =
-            new Vector2Int(exitTileCoordinates.x, exitTileCoordinates.y) + playerDirection;
-
-        Vector3Int? nextTile = MapManager.Instance.GetTopTileAt(targetCoordinates);
-
-        if (nextTile.HasValue && Mathf.Abs(exitTileCoordinates.z - nextTile.Value.z) <= 1)
-        {
-            TargetTileCoordinates = nextTile.Value;
-            isMoving = true;
-            Debug.Log("SetTargetTileForTeleport: true");
-            return true;
-        }
-        Debug.Log("SetTargetTileForTeleport: Can't move forward after teleport");
-        return false;
-    }
-
     IEnumerator TeleportWithCooldown(Vector3Int exitTileCoordinates, Collider2D exitGateCollider2D)
     {
         isTeleporting = true;
@@ -176,7 +205,7 @@ public class Player : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
 
         MovePlayerToTile(exitTileCoordinates);
-        bool movedAfterTeleport = SetTargetTileForTeleport(exitTileCoordinates);
+        bool movedAfterTeleport = SetTargetTile(exitTileCoordinates);
         if (!movedAfterTeleport)
         {
             playerDirection = -playerDirection;
