@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class CursedMimic : MonoBehaviour, IPlayerInteractable
 {
+    [SerializeField]
+    Vector3Int startingTilePos;
     public event EventHandler<OnTouchedMimicEventArgs> OnTouchedMimic;
 
     public class OnTouchedMimicEventArgs : EventArgs
@@ -14,7 +16,7 @@ public class CursedMimic : MonoBehaviour, IPlayerInteractable
 
     void Start()
     {
-        tilePos = new(1, 4, 2);
+        tilePos = startingTilePos;
         MoveMimicToTile(tilePos);
     }
 
