@@ -19,20 +19,20 @@ public class Player : MonoBehaviour
     float playerSpeed = 5f;
 
     InputAction moveAction;
-    private Vector3Int currentTileCoordinates;
+    private Vector3Int currentTilePos;
 
-    private Vector3Int _targetTileCoordinates;
-    private Vector3 _targetTileWorldCoordinates;
-    private Vector3Int TargetTileCoordinates
+    private Vector3Int _targetTilePos;
+    private Vector3 _targetTileWorldPos;
+    private Vector3Int TargetTilePos
     {
-        get => _targetTileCoordinates;
+        get => _targetTilePos;
         set
         {
-            _targetTileCoordinates = value;
-            _targetTileWorldCoordinates = MapManager.Instance.TileToWorld(_targetTileCoordinates);
+            _targetTilePos = value;
+            _targetTileWorldPos = MapManager.Instance.TileToWorld(_targetTilePos);
         }
     }
-    private Vector3 TargetTileWorldCoordinates => _targetTileWorldCoordinates;
+    private Vector3 TargetTileWorldPos => _targetTileWorldPos;
     private bool isMoving;
     private bool isTeleporting;
     private GameObject carriedObject;
@@ -43,8 +43,8 @@ public class Player : MonoBehaviour
     {
         moveAction = InputSystem.actions.FindAction("Move");
 
-        currentTileCoordinates = new(0, 0, 0);
-        TargetTileCoordinates = new(0, 0, 0);
+        currentTilePos = new(0, 0, 0);
+        TargetTilePos = new(0, 0, 0);
         isMoving = false;
         isTeleporting = false;
         playerDirection = new(1, 0);
@@ -52,7 +52,7 @@ public class Player : MonoBehaviour
         MovePlayerToTile(new Vector3Int(0, 0, 0));
 
         runicGateManager.OnTeleport += (_, e) =>
-            StartCoroutine(TeleportWithCooldown(e.targetTileCoordinates, e.exitGateCollider));
+            StartCoroutine(TeleportWithCooldown(e.targetTilePos, e.exitGateCollider));
         cursedMimicReference.OnTouchedMimic += (_, e) =>
         {
             if (carriedObject == null)
@@ -71,12 +71,12 @@ public class Player : MonoBehaviour
             if (moveValue.x != 0)
             {
                 playerDirection = new Vector2Int((int)Mathf.Sign(moveValue.x), 0);
-                SetTargetTile(currentTileCoordinates);
+                SetTargetTile(currentTilePos);
             }
             else if (moveValue.y != 0)
             {
                 playerDirection = new Vector2Int(0, (int)Mathf.Sign(moveValue.y));
-                SetTargetTile(currentTileCoordinates);
+                SetTargetTile(currentTilePos);
             }
         }
         else
@@ -93,7 +93,7 @@ public class Player : MonoBehaviour
         }
 
         Vector3Int tileToCheck =
-            currentTileCoordinates + new Vector3Int(playerDirection.x, playerDirection.y, 0);
+            currentTilePos + new Vector3Int(playerDirection.x, playerDirection.y, 0);
         bool targetTileIsAccessible = MapManager.Instance.IsTileAccessible(tileToCheck);
 
         if (carriedObject != null && targetTileIsAccessible)
@@ -124,6 +124,7 @@ public class Player : MonoBehaviour
             bool tileHasGate = runicGateManager.TileHasGate(tileToCheck);
             if (!tileHasGate)
             {
+                Debug.Log("Player.cs DropMimic");
                 cursedMimic.DropMimic(tileToCheck);
                 carriedObject = null;
             }
@@ -150,16 +151,14 @@ public class Player : MonoBehaviour
 
     private bool SetTargetTile(Vector3Int startingTile)
     {
-        Vector2Int targetCoordinates =
-            new Vector2Int(startingTile.x, startingTile.y) + playerDirection;
+        Vector2Int targetPos = new Vector2Int(startingTile.x, startingTile.y) + playerDirection;
 
-        Vector3Int? nextTile = MapManager.Instance.GetTopTileAt(targetCoordinates);
-
+        Vector3Int? nextTile = MapManager.Instance.GetTopTileAt(targetPos);
         if (nextTile.HasValue)
         {
             if (Mathf.Abs(startingTile.z - nextTile.Value.z) <= 1)
             {
-                TargetTileCoordinates = nextTile.Value;
+                TargetTilePos = nextTile.Value;
                 isMoving = true;
                 return true;
             }
@@ -169,43 +168,43 @@ public class Player : MonoBehaviour
 
     private void MoveTowardsTargetTile()
     {
-        Vector3 movementDirection = TargetTileWorldCoordinates - transform.position;
+        Vector3 movementDirection = TargetTileWorldPos - transform.position;
         float movementDistance = playerSpeed * Time.deltaTime;
 
         if (movementDistance >= movementDirection.magnitude)
         {
-            transform.position = TargetTileWorldCoordinates;
+            transform.position = TargetTileWorldPos;
             isMoving = false;
-            currentTileCoordinates = TargetTileCoordinates;
+            currentTilePos = TargetTilePos;
         }
         else
         {
             transform.position = Vector3.MoveTowards(
                 transform.position,
-                TargetTileWorldCoordinates,
+                TargetTileWorldPos,
                 movementDistance
             );
         }
     }
 
-    private void MovePlayerToTile(Vector3Int tileCoordinates)
+    private void MovePlayerToTile(Vector3Int tilePos)
     {
-        Vector3 worldPos = MapManager.Instance.TileToWorld(tileCoordinates);
+        Vector3 worldPos = MapManager.Instance.TileToWorld(tilePos);
         transform.position = worldPos;
-        currentTileCoordinates = tileCoordinates;
-        TargetTileCoordinates = tileCoordinates;
+        currentTilePos = tilePos;
+        TargetTilePos = tilePos;
         isMoving = false;
     }
 
-    IEnumerator TeleportWithCooldown(Vector3Int exitTileCoordinates, Collider2D exitGateCollider2D)
+    IEnumerator TeleportWithCooldown(Vector3Int exitTilePos, Collider2D exitGateCollider2D)
     {
         isTeleporting = true;
         exitGateCollider2D.enabled = false;
 
         yield return new WaitForSeconds(0.1f);
 
-        MovePlayerToTile(exitTileCoordinates);
-        bool movedAfterTeleport = SetTargetTile(exitTileCoordinates);
+        MovePlayerToTile(exitTilePos);
+        bool movedAfterTeleport = SetTargetTile(exitTilePos);
         if (!movedAfterTeleport)
         {
             playerDirection = -playerDirection;

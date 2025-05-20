@@ -10,35 +10,39 @@ public class CursedMimic : MonoBehaviour, IPlayerInteractable
         public GameObject mimicGameObject;
     }
 
-    private Vector3Int tileCoordinates;
+    private Vector3Int tilePos;
 
     void Start()
     {
-        tileCoordinates = new(1, 4, 2);
-        MoveMimicToTile(tileCoordinates);
+        tilePos = new(1, 4, 2);
+        MoveMimicToTile(tilePos);
     }
 
     void Update() { }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (other.GetComponent<Player>() == null)
+        {
+            return;
+        }
         OnTouchedMimic?.Invoke(
             this,
             new OnTouchedMimicEventArgs { mimicGameObject = this.gameObject }
         );
     }
 
-    private void MoveMimicToTile(Vector3Int newTileCoordinates)
+    private void MoveMimicToTile(Vector3Int newTilePos)
     {
-        Vector3 worldPos = MapManager.Instance.TileToWorld(newTileCoordinates);
+        Vector3 worldPos = MapManager.Instance.TileToWorld(newTilePos);
         transform.position = worldPos;
-        tileCoordinates = newTileCoordinates;
+        tilePos = newTilePos;
     }
 
-    public void DropMimic(Vector3Int coordinates)
+    public void DropMimic(Vector3Int Pos)
     {
         gameObject.SetActive(true);
-        MoveMimicToTile(coordinates);
+        MoveMimicToTile(Pos);
     }
 
     public GameObject Interact()

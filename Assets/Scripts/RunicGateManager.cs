@@ -9,7 +9,7 @@ public class RunicGateManager : MonoBehaviour
 
     public class OnTeleportEventArgs : EventArgs
     {
-        public Vector3Int targetTileCoordinates;
+        public Vector3Int targetTilePos;
         public Collider2D exitGateCollider;
     }
 
@@ -48,7 +48,7 @@ public class RunicGateManager : MonoBehaviour
             return;
 
         int targetIndex = (triggeredIndex + 1) % runicGates.Length;
-        Vector3Int targetCoordinates = runicGates[targetIndex].TileCoordinates;
+        Vector3Int targetPos = runicGates[targetIndex].TilePos;
         Collider2D exitGatecCllider2D = runicGates[
             targetIndex
         ].RunicGateObject.GetComponent<Collider2D>();
@@ -57,20 +57,17 @@ public class RunicGateManager : MonoBehaviour
             this,
             new OnTeleportEventArgs
             {
-                targetTileCoordinates = targetCoordinates,
+                targetTilePos = targetPos,
                 exitGateCollider = exitGatecCllider2D
             }
         );
     }
 
-    public bool TileHasGate(Vector3Int tileCoordinates)
+    public bool TileHasGate(Vector3Int tilePos)
     {
         for (int i = 0; i < runicGates.Length; i++)
         {
-            if (
-                runicGates[i].TileCoordinates == tileCoordinates
-                && runicGates[i].RunicGateObject.activeSelf
-            )
+            if (runicGates[i].TilePos == tilePos && runicGates[i].RunicGateObject.activeSelf)
             {
                 return true;
             }
@@ -78,14 +75,11 @@ public class RunicGateManager : MonoBehaviour
         return false;
     }
 
-    public void DeactivateRunicGate(Vector3Int tileCoordinates)
+    public void DeactivateRunicGate(Vector3Int tilePos)
     {
         for (int i = 0; i < runicGates.Length; i++)
         {
-            if (
-                runicGates[i].TileCoordinates == tileCoordinates
-                && runicGates[i].RunicGateObject.activeSelf
-            )
+            if (runicGates[i].TilePos == tilePos && runicGates[i].RunicGateObject.activeSelf)
             {
                 runicGates[i].RunicGateObject.SetActive(false);
                 return;
@@ -93,16 +87,16 @@ public class RunicGateManager : MonoBehaviour
         }
     }
 
-    public void ActivateRunicGate(Vector3Int tileCoordinates)
+    public void ActivateRunicGate(Vector3Int tilePos)
     {
         for (int i = 0; i < runicGates.Length; i++)
         {
             if (!runicGates[i].RunicGateObject.activeSelf)
             {
                 runicGates[i].RunicGateObject.transform.position = MapManager.Instance.TileToWorld(
-                    tileCoordinates
+                    tilePos
                 );
-                runicGates[i].TileCoordinates = tileCoordinates;
+                runicGates[i].TilePos = tilePos;
                 runicGates[i].RunicGateObject.SetActive(true);
                 return;
             }
@@ -113,11 +107,11 @@ public class RunicGateManager : MonoBehaviour
 struct RunicGateData
 {
     public GameObject RunicGateObject;
-    public Vector3Int TileCoordinates;
+    public Vector3Int TilePos;
 
-    public RunicGateData(GameObject runicGateObject, Vector3Int tileCoordinates)
+    public RunicGateData(GameObject runicGateObject, Vector3Int tilePos)
     {
         RunicGateObject = runicGateObject;
-        TileCoordinates = tileCoordinates;
+        TilePos = tilePos;
     }
 }
