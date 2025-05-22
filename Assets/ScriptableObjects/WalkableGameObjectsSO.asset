@@ -12,4 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abb09b1a4ae2ea74ba2c7dc3cce4fec8, type: 3}
   m_Name: WalkableGameObjectsSO
   m_EditorClassIdentifier: 
-  walkableComponents: []
+  walkableComponents:
+  - {fileID: 3933722204693655353, guid: a6561c41dd3d49741be8eb080b43c382, type: 3}
+  - {fileID: 5936617259092127539, guid: eeb7ffa779a7a8f4eadd76898e47ae26, type: 3}
+  - {fileID: 8611101275197507442, guid: e7c601abbe2a9ee4bad320424b355d7a, type: 3}

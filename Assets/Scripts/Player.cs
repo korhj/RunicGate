@@ -16,6 +16,9 @@ public class Player : MonoBehaviour
     private CursedMimic cursedMimicReference;
 
     [SerializeField]
+    private ExitDoor exitDoor;
+
+    [SerializeField]
     float playerSpeed = 5f;
 
     [SerializeField]
@@ -65,6 +68,13 @@ public class Player : MonoBehaviour
             {
                 carriedObject = e.mimicGameObject;
                 cursedMimicReference.Interact();
+            }
+        };
+        exitDoor.OnExitDoorEntered += (_, e) =>
+        {
+            if (carriedObject != null)
+            {
+                Debug.Log("Victory");
             }
         };
     }
