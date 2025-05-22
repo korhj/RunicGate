@@ -18,6 +18,12 @@ public class Player : MonoBehaviour
     [SerializeField]
     float playerSpeed = 5f;
 
+    [SerializeField]
+    int playerHeight = 2;
+
+    [SerializeField]
+    int playerJumpHeight = 1;
+
     InputAction moveAction;
     private Vector3Int currentTilePos;
 
@@ -151,17 +157,19 @@ public class Player : MonoBehaviour
 
     private bool SetTargetTile(Vector3Int startingTile)
     {
-        Vector2Int targetPos = new Vector2Int(startingTile.x, startingTile.y) + playerDirection;
+        Vector3Int targetPos =
+            startingTile + new Vector3Int(playerDirection.x, playerDirection.y, 0);
 
-        Vector3Int? nextTile = MapManager.Instance.GetTopTileAt(targetPos);
+        Vector3Int? nextTile = MapManager.Instance.FindWalkableTileAt(
+            targetPos,
+            height: playerJumpHeight,
+            clearance: playerHeight
+        );
         if (nextTile.HasValue)
         {
-            if (Mathf.Abs(startingTile.z - nextTile.Value.z) <= 1)
-            {
-                TargetTilePos = nextTile.Value;
-                isMoving = true;
-                return true;
-            }
+            TargetTilePos = nextTile.Value;
+            isMoving = true;
+            return true;
         }
         return false;
     }
