@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 public class Player : MonoBehaviour
 {
     [SerializeField]
-    private SpriteRenderer playerSpriteRenderer;
+    private SpriteRenderer spriteRenderer;
 
     [SerializeField]
     private RunicGateManager runicGateManager;
@@ -27,6 +27,18 @@ public class Player : MonoBehaviour
     [SerializeField]
     int playerJumpHeight = 1;
 
+    [SerializeField]
+    private Sprite upSprite;
+
+    [SerializeField]
+    private Sprite downSprite;
+
+    [SerializeField]
+    private Sprite leftSprite;
+
+    [SerializeField]
+    private Sprite rightSprite;
+
     InputAction moveAction;
     private Vector3Int currentTilePos;
 
@@ -44,6 +56,7 @@ public class Player : MonoBehaviour
     private Vector3 TargetTileWorldPos => _targetTileWorldPos;
     private bool isMoving;
     private bool isTeleporting;
+    private bool isWaiting;
     private GameObject carriedObject;
 
     private Vector2Int playerDirection;
@@ -56,6 +69,7 @@ public class Player : MonoBehaviour
         TargetTilePos = new(0, 0, 0);
         isMoving = false;
         isTeleporting = false;
+        isWaiting = false;
         playerDirection = new(1, 0);
 
         MovePlayerToTile(new Vector3Int(0, 0, 0));
@@ -81,6 +95,10 @@ public class Player : MonoBehaviour
 
     void Update()
     {
+        if (isWaiting)
+        {
+            return;
+        }
         if (!isMoving && !isTeleporting)
         {
             Vector2 moveValue = moveAction.ReadValue<Vector2>();
@@ -88,11 +106,13 @@ public class Player : MonoBehaviour
             {
                 playerDirection = new Vector2Int((int)Mathf.Sign(moveValue.x), 0);
                 SetTargetTile(currentTilePos);
+                UpdateSpriteDirection(playerDirection);
             }
             else if (moveValue.y != 0)
             {
                 playerDirection = new Vector2Int(0, (int)Mathf.Sign(moveValue.y));
                 SetTargetTile(currentTilePos);
+                UpdateSpriteDirection(playerDirection);
             }
         }
         else
@@ -101,9 +121,21 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void UpdateSpriteDirection(Vector2Int direction)
+    {
+        if (MathF.Abs(direction.x) > 0)
+        {
+            spriteRenderer.sprite = direction.x > 0 ? rightSprite : leftSprite;
+        }
+        else
+        {
+            spriteRenderer.sprite = direction.y > 0 ? upSprite : downSprite;
+        }
+    }
+
     private void OnInteract()
     {
-        if (isMoving)
+        if (isMoving || isWaiting)
         {
             return;
         }
@@ -238,5 +270,17 @@ public class Player : MonoBehaviour
             yield return new WaitForSeconds(0.2f);
         }
         isTeleporting = false;
+    }
+
+    public void SetParent(Transform parentTransform)
+    {
+        transform.SetParent(parentTransform);
+        if (parentTransform != null)
+        {
+            isWaiting = true;
+            return;
+        }
+        isWaiting = false;
+        currentTilePos = MapManager.Instance.WorldToTile(transform.position);
     }
 }

@@ -9,22 +9,57 @@ public class MovingPlatform : MonoBehaviour
     [SerializeField]
     private float speed;
     private bool isActive;
-    private Vector3 startPos;
-    private Vector3 targetPos;
+
+    private bool isMoving;
+    private Vector3 startWorldPos;
+    private Vector3 targetWorldPos;
+
+    private Player playerOnPlatform;
 
     private void Start()
     {
         isActive = false;
-        startPos = transform.position;
-        Vector3Int startTilePos = MapManager.Instance.WorldToTile(startPos);
-        targetPos = MapManager.Instance.TileToWorld(startTilePos + tileOffset);
+        isMoving = false;
+        startWorldPos = transform.position;
+        Vector3Int startPos = MapManager.Instance.WorldToTile(startWorldPos);
+        targetWorldPos = MapManager.Instance.TileToWorld(startPos + tileOffset);
     }
 
     private void Update()
     {
-        Vector3 destination = isActive ? targetPos : startPos;
+        Vector3 destination = isActive ? targetWorldPos : startWorldPos;
         float movementDistance = speed * Time.deltaTime;
+
+        if (movementDistance >= (transform.position - destination).magnitude)
+        {
+            if (isMoving && playerOnPlatform != null)
+            {
+                playerOnPlatform.SetParent(null);
+                playerOnPlatform = null;
+            }
+            transform.position = destination;
+            isMoving = false;
+            return;
+        }
+
+        if (playerOnPlatform != null && playerOnPlatform.transform.position == transform.position)
+        {
+            playerOnPlatform.SetParent(transform);
+        }
+
+        isMoving = true;
         transform.position = Vector3.MoveTowards(transform.position, destination, movementDistance);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.TryGetComponent(out Player player))
+        {
+            if (!isMoving)
+            {
+                playerOnPlatform = player;
+            }
+        }
     }
 
     public void Activate()

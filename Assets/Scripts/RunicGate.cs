@@ -11,9 +11,9 @@ public class RunicGate : MonoBehaviour
         public GameObject runicGateGameObject;
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (other.TryGetComponent<Player>(out _))
+        if (collision.TryGetComponent<Player>(out _))
         {
             OnRunicGateEntered?.Invoke(
                 this,

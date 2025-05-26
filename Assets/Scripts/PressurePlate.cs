@@ -7,7 +7,7 @@ public class PressurePlate : MonoBehaviour
     [SerializeField]
     private List<MovingPlatform> movingPlatforms;
 
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
         if (movingPlatforms == null)
         {

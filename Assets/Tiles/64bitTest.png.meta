@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 30c91f5eda0bf524fbfae8b9853645fb
+guid: 0d393d3c9c1dcb74b905e15dddfb40c8
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6211315644027415285
-    second: CursedMimic_0
+      213: 8276079550871101499
+    second: 64bitTest_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -48,7 +48,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 64
@@ -72,7 +72,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 64
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -139,23 +139,111 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: CursedMimic_0
+      name: 64bitTest_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 0
-        width: 29
-        height: 29
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        y: 576
+        width: 64
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.75}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: b055be9a459fcc9a0800000000000000
-      internalID: -6211315644027415285
+      spriteID: b30eb82c08a8ad270800000000000000
+      internalID: 8276079550871101499
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 64bitTest_1
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 576
+        width: 64
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f32a742414f1d7e47a314e16c284db69
+      internalID: -52424795
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 64bitTest_2
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 576
+        width: 64
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6595a783ca24c514c9b3d0f05b1103d2
+      internalID: -1995157
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 64bitTest_3
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 576
+        width: 64
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ac224e5d2259fc5418c1ffd472ebe8e3
+      internalID: 490824266
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: 64bitTest_4
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 576
+        width: 64
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3140efd96dde98e4d84b1396f2862b1a
+      internalID: -352172401
       vertices: []
       indices: 
       edges: []
@@ -164,7 +252,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 0e148f9afca8f8844b75a5ba88b854d1
     internalID: 0
     vertices: []
     indices: 
@@ -174,7 +262,11 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      CursedMimic_0: -6211315644027415285
+      64bitTest_0: 8276079550871101499
+      64bitTest_1: -52424795
+      64bitTest_2: -1995157
+      64bitTest_3: 490824266
+      64bitTest_4: -352172401
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

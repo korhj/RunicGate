@@ -56,6 +56,16 @@ Tilemap:
       m_TileObjectToInstantiateIndex: 65535
       dummyAlignment: 0
       m_AllTileFlags: 1073741825
+  - first: {x: -6, y: -1, z: 0}
+    second:
+      serializedVersion: 2
+      m_TileIndex: 2
+      m_TileSpriteIndex: 2
+      m_TileMatrixIndex: 0
+      m_TileColorIndex: 0
+      m_TileObjectToInstantiateIndex: 65535
+      dummyAlignment: 0
+      m_AllTileFlags: 1073741825
   - first: {x: -3, y: -1, z: 0}
     second:
       serializedVersion: 2
@@ -72,13 +82,17 @@ Tilemap:
     m_Data: {fileID: 11400000, guid: 5cf4788482343754c8656e3164dc038c, type: 2}
   - m_RefCount: 1
     m_Data: {fileID: 11400000, guid: d244bdf2e368abc43a5f68bba3dba923, type: 2}
+  - m_RefCount: 1
+    m_Data: {fileID: 11400000, guid: fc0e5945c90ad7446b5db4be6b33bce2, type: 2}
   m_TileSpriteArray:
   - m_RefCount: 1
     m_Data: {fileID: -5316208627850053415, guid: 97bdd95348c8d1c4fbfd4dd77f5a0cb8, type: 3}
   - m_RefCount: 1
     m_Data: {fileID: 6354598067877884117, guid: 0c3032b9a947012498c534afab4161dc, type: 3}
+  - m_RefCount: 1
+    m_Data: {fileID: -6701774953974520377, guid: 270704c57b5cc0247bd9fafd47e90f45, type: 3}
   m_TileMatrixArray:
-  - m_RefCount: 2
+  - m_RefCount: 3
     m_Data:
       e00: 1
       e01: 0
@@ -97,13 +111,13 @@ Tilemap:
       e32: 0
       e33: 1
   m_TileColorArray:
-  - m_RefCount: 2
+  - m_RefCount: 3
     m_Data: {r: 1, g: 1, b: 1, a: 1}
   m_TileObjectToInstantiateArray: []
   m_AnimationFrameRate: 1
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Origin: {x: -3, y: -4, z: 0}
-  m_Size: {x: 1, y: 4, z: 1}
+  m_Origin: {x: -6, y: -4, z: 0}
+  m_Size: {x: 4, y: 4, z: 1}
   m_TileAnchor: {x: 0.5, y: 0.5, z: 0}
   m_TileOrientation: 0
   m_TileOrientationMatrix:
@@ -228,6 +242,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7457601481984857621}
     m_Modifications:
+    - target: {fileID: 4527750926467399077, guid: e7c601abbe2a9ee4bad320424b355d7a, type: 3}
+      propertyPath: m_DynamicOccludee
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4527750926467399077, guid: e7c601abbe2a9ee4bad320424b355d7a, type: 3}
+      propertyPath: m_LightProbeUsage
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5269344875730460192, guid: e7c601abbe2a9ee4bad320424b355d7a, type: 3}
       propertyPath: m_Name
       value: ExitDoor
@@ -492,7 +514,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1974484367427284103, guid: 22e3ac4438ad7cc409a200df75f2e304, type: 3}
   m_PrefabInstance: {fileID: 7553518366663564951}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &8698120392047902896
+--- !u!114 &4368032176165683003
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
