@@ -1,40 +1,21 @@
 using System;
 using UnityEngine;
 
-public class CursedMimic : MonoBehaviour, IPlayerInteractable
+public class CursedMimic : MonoBehaviour, IPlayerInteractable, IObstacle
 {
     [SerializeField]
     Vector3Int startingTilePos;
-    public event EventHandler<OnTouchedMimicEventArgs> OnTouchedMimic;
-
-    public class OnTouchedMimicEventArgs : EventArgs
-    {
-        public GameObject mimicGameObject;
-    }
-
     private Vector3Int tilePos;
+    public Vector3Int TilePosition => tilePos;
 
     void Start()
     {
         tilePos = startingTilePos;
-        MoveMimicToTile(tilePos);
+        MoveToTile(tilePos);
+        MapManager.Instance.AddObstacle(this);
     }
 
-    void Update() { }
-
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.GetComponent<Player>() == null)
-        {
-            return;
-        }
-        OnTouchedMimic?.Invoke(
-            this,
-            new OnTouchedMimicEventArgs { mimicGameObject = this.gameObject }
-        );
-    }
-
-    private void MoveMimicToTile(Vector3Int newTilePos)
+    public void MoveToTile(Vector3Int newTilePos)
     {
         Vector3 worldPos = MapManager.Instance.TileToWorld(newTilePos);
         transform.position = worldPos;
@@ -44,12 +25,24 @@ public class CursedMimic : MonoBehaviour, IPlayerInteractable
     public void DropMimic(Vector3Int Pos)
     {
         gameObject.SetActive(true);
-        MoveMimicToTile(Pos);
+        MapManager.Instance.AddObstacle(this);
+        MoveToTile(Pos);
     }
 
     public GameObject Interact()
     {
         gameObject.SetActive(false);
+        MapManager.Instance.RemoveObstacle(this);
         return gameObject;
+    }
+
+    public void SetParent(Transform parentTransform)
+    {
+        transform.SetParent(parentTransform);
+        if (parentTransform != null)
+        {
+            return;
+        }
+        tilePos = MapManager.Instance.WorldToTile(transform.position);
     }
 }

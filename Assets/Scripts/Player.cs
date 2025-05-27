@@ -1,10 +1,11 @@
 using System;
 using System.Collections;
+using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Player : MonoBehaviour
+public class Player : MonoBehaviour, IObstacle
 {
     [SerializeField]
     private SpriteRenderer spriteRenderer;
@@ -54,6 +55,9 @@ public class Player : MonoBehaviour
         }
     }
     private Vector3 TargetTileWorldPos => _targetTileWorldPos;
+
+    public Vector3Int TilePosition => currentTilePos;
+
     private bool isMoving;
     private bool isTeleporting;
     private bool isWaiting;
@@ -72,18 +76,11 @@ public class Player : MonoBehaviour
         isWaiting = false;
         playerDirection = new(1, 0);
 
-        MovePlayerToTile(new Vector3Int(0, 0, 0));
+        MoveToTile(new Vector3Int(0, 0, 0));
 
         runicGateManager.OnTeleport += (_, e) =>
             StartCoroutine(TeleportWithCooldown(e.targetTilePos, e.exitGateCollider));
-        cursedMimicReference.OnTouchedMimic += (_, e) =>
-        {
-            if (carriedObject == null)
-            {
-                carriedObject = e.mimicGameObject;
-                cursedMimicReference.Interact();
-            }
-        };
+
         exitDoor.OnExitDoorEntered += (_, e) =>
         {
             if (carriedObject != null)
@@ -91,6 +88,8 @@ public class Player : MonoBehaviour
                 Debug.Log("Victory");
             }
         };
+
+        MapManager.Instance.AddObstacle(this);
     }
 
     void Update()
@@ -142,8 +141,12 @@ public class Player : MonoBehaviour
 
         Vector3Int tileToCheck =
             currentTilePos + new Vector3Int(playerDirection.x, playerDirection.y, 0);
-        bool targetTileIsAccessible = MapManager.Instance.IsTileAccessible(tileToCheck);
-
+        Vector3Int? result = MapManager.Instance.FindAvailableTileAt(
+            tileToCheck,
+            maxZDiff: 0,
+            clearance: 2
+        );
+        bool targetTileIsAccessible = result.HasValue;
         if (carriedObject != null && targetTileIsAccessible)
         {
             TryDropCarriedObject(tileToCheck);
@@ -151,17 +154,17 @@ public class Player : MonoBehaviour
         }
 
         Vector3 worldToCheck = MapManager.Instance.TileToWorld(tileToCheck);
-        Collider2D collider = Physics2D.OverlapPoint(worldToCheck);
-
-        if (collider != null)
+        Collider2D[] colliders = Physics2D.OverlapPointAll(worldToCheck);
+        if (colliders.Length == 0)
+        {
+            if (targetTileIsAccessible)
+            {
+                runicGateManager.ActivateRunicGate(tileToCheck);
+            }
+        }
+        foreach (Collider2D collider in colliders)
         {
             InteractWithObject(collider, tileToCheck);
-            return;
-        }
-
-        if (targetTileIsAccessible)
-        {
-            runicGateManager.ActivateRunicGate(tileToCheck);
         }
     }
 
@@ -172,7 +175,6 @@ public class Player : MonoBehaviour
             bool tileHasGate = runicGateManager.TileHasGate(tileToCheck);
             if (!tileHasGate)
             {
-                Debug.Log("Player.cs DropMimic");
                 cursedMimic.DropMimic(tileToCheck);
                 carriedObject = null;
             }
@@ -187,7 +189,6 @@ public class Player : MonoBehaviour
             if (interactResult != null)
             {
                 carriedObject = interactResult;
-                Debug.Log($"carriedObject {carriedObject}");
             }
             return;
         }
@@ -202,9 +203,9 @@ public class Player : MonoBehaviour
         Vector3Int targetPos =
             startingTile + new Vector3Int(playerDirection.x, playerDirection.y, 0);
 
-        Vector3Int? nextTile = MapManager.Instance.FindWalkableTileAt(
+        Vector3Int? nextTile = MapManager.Instance.FindAvailableTileAt(
             targetPos,
-            height: playerJumpHeight,
+            maxZDiff: playerJumpHeight,
             clearance: playerHeight
         );
         if (nextTile.HasValue)
@@ -237,7 +238,7 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void MovePlayerToTile(Vector3Int tilePos)
+    public void MoveToTile(Vector3Int tilePos)
     {
         Vector3 worldPos = MapManager.Instance.TileToWorld(tilePos);
         transform.position = worldPos;
@@ -253,7 +254,7 @@ public class Player : MonoBehaviour
 
         yield return new WaitForSeconds(0.1f);
 
-        MovePlayerToTile(exitTilePos);
+        MoveToTile(exitTilePos);
         bool movedAfterTeleport = SetTargetTile(exitTilePos);
         if (!movedAfterTeleport)
         {

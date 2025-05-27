@@ -14,15 +14,17 @@ public class MovingPlatform : MonoBehaviour
     private Vector3 startWorldPos;
     private Vector3 targetWorldPos;
 
-    private Player playerOnPlatform;
+    private IObstacle objectOnPlatform;
+    private MapManager mapManager;
 
     private void Start()
     {
         isActive = false;
         isMoving = false;
         startWorldPos = transform.position;
-        Vector3Int startPos = MapManager.Instance.WorldToTile(startWorldPos);
-        targetWorldPos = MapManager.Instance.TileToWorld(startPos + tileOffset);
+        mapManager = MapManager.Instance;
+        Vector3Int startPos = mapManager.WorldToTile(startWorldPos);
+        targetWorldPos = mapManager.TileToWorld(startPos + tileOffset);
     }
 
     private void Update()
@@ -32,34 +34,29 @@ public class MovingPlatform : MonoBehaviour
 
         if (movementDistance >= (transform.position - destination).magnitude)
         {
-            if (isMoving && playerOnPlatform != null)
+            if (isMoving && objectOnPlatform != null)
             {
-                playerOnPlatform.SetParent(null);
-                playerOnPlatform = null;
+                objectOnPlatform.MoveToTile(mapManager.WorldToTile(destination));
+                objectOnPlatform.SetParent(null);
+                objectOnPlatform = null;
             }
             transform.position = destination;
             isMoving = false;
             return;
         }
 
-        if (playerOnPlatform != null && playerOnPlatform.transform.position == transform.position)
+        if (!isMoving)
         {
-            playerOnPlatform.SetParent(transform);
+            IObstacle obstacle = mapManager.GetObstacle(mapManager.WorldToTile(transform.position));
+            if (obstacle != null)
+            {
+                objectOnPlatform = obstacle;
+                objectOnPlatform.SetParent(transform);
+            }
         }
 
         isMoving = true;
         transform.position = Vector3.MoveTowards(transform.position, destination, movementDistance);
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.TryGetComponent(out Player player))
-        {
-            if (!isMoving)
-            {
-                playerOnPlatform = player;
-            }
-        }
     }
 
     public void Activate()
