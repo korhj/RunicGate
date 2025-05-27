@@ -149,8 +149,10 @@ public class Player : MonoBehaviour, IObstacle
         bool targetTileIsAccessible = result.HasValue;
         if (carriedObject != null && targetTileIsAccessible)
         {
-            TryDropCarriedObject(tileToCheck);
-            return;
+            if (TryDropCarriedObject(tileToCheck))
+            {
+                return;
+            }
         }
 
         Vector3 worldToCheck = MapManager.Instance.TileToWorld(tileToCheck);
@@ -168,7 +170,7 @@ public class Player : MonoBehaviour, IObstacle
         }
     }
 
-    private void TryDropCarriedObject(Vector3Int tileToCheck)
+    private bool TryDropCarriedObject(Vector3Int tileToCheck)
     {
         if (carriedObject.TryGetComponent<CursedMimic>(out CursedMimic cursedMimic))
         {
@@ -177,8 +179,10 @@ public class Player : MonoBehaviour, IObstacle
             {
                 cursedMimic.DropMimic(tileToCheck);
                 carriedObject = null;
+                return true;
             }
         }
+        return false;
     }
 
     private void InteractWithObject(Collider2D collider, Vector3Int tileToCheck)
