@@ -5,17 +5,34 @@ using UnityEngine.Tilemaps;
 
 public class MouseController : MonoBehaviour
 {
-    public Vector3Int pos = new Vector3Int(0, 0, 0);
-    Ray ray;
+    private SelectedTile selectedTile;
+
+    private void Awake()
+    {
+        selectedTile = null;
+    }
 
     private void Update()
     {
         if (Input.GetMouseButtonDown(0))
         {
             var tileHit = GetClickedTile();
-            if (tileHit.HasValue)
+            if (!tileHit.HasValue)
             {
-                Debug.Log(tileHit.Value.collider.gameObject);
+                return;
+            }
+            if (
+                tileHit.Value.collider.gameObject.TryGetComponent<SelectedTile>(
+                    out SelectedTile tile
+                )
+            )
+            {
+                if (selectedTile != null)
+                {
+                    selectedTile.Hide();
+                }
+                selectedTile = tile;
+                selectedTile.Show();
             }
         }
     }

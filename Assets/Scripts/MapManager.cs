@@ -14,9 +14,16 @@ public class MapManager : MonoBehaviour
 
     [SerializeField]
     private WalkableGameObjectsSO walkableGameObjects;
+
+    [SerializeField]
+    SelectedTile selectedTilePrefab;
+
+    [SerializeField]
+    GameObject selectedTileContainer;
     public Tilemap Tilemap => tilemap;
 
     private List<IObstacle> obstacles;
+    private Dictionary<Vector2Int, SelectedTile> map;
 
     private void Awake()
     {
@@ -32,6 +39,40 @@ public class MapManager : MonoBehaviour
         }
 
         obstacles = new List<IObstacle>();
+        map = new Dictionary<Vector2Int, SelectedTile>();
+        CreateSelectedTiles();
+    }
+
+    private void CreateSelectedTiles()
+    {
+        BoundsInt bounds = tilemap.cellBounds;
+
+        for (int z = bounds.max.z; z >= bounds.min.z; z--)
+        {
+            for (int y = bounds.min.y; y < bounds.max.y; y++)
+            {
+                for (int x = bounds.min.x; x < bounds.max.x; x++)
+                {
+                    Vector3Int tilePos = new(x, y, z);
+                    Vector2Int tileKey = new(x, y);
+                    if (tilemap.HasTile(tilePos) && !map.ContainsKey(tileKey))
+                    {
+                        SelectedTile selectedTile = Instantiate(
+                            selectedTilePrefab,
+                            selectedTileContainer.transform
+                        );
+                        Vector3 worldPos = TileToWorld(tilePos);
+
+                        selectedTile.transform.position = new(
+                            worldPos.x,
+                            worldPos.y,
+                            worldPos.z + 1
+                        );
+                        map.Add(tileKey, selectedTile);
+                    }
+                }
+            }
+        }
     }
 
     private bool IsAvailable(Vector3Int tilePos)
