@@ -8,12 +8,14 @@ public class MovingPlatform : MonoBehaviour
 
     [SerializeField]
     private float speed;
-    private bool isActive;
 
+    [SerializeField]
+    private SelectedTile selectedTilePrefab;
+
+    private bool isActive;
     private bool isMoving;
     private Vector3 startWorldPos;
     private Vector3 targetWorldPos;
-
     private IObstacle objectOnPlatform;
     private MapManager mapManager;
 
@@ -39,6 +41,14 @@ public class MovingPlatform : MonoBehaviour
                 objectOnPlatform.MoveToTile(mapManager.WorldToTile(destination));
                 objectOnPlatform.SetParent(null);
                 objectOnPlatform = null;
+            }
+            if (isMoving)
+            {
+                SelectedTile childTile = transform.GetComponentInChildren<SelectedTile>();
+                if (childTile != null)
+                {
+                    childTile.tilePos = mapManager.WorldToTile(destination);
+                }
             }
             transform.position = destination;
             isMoving = false;

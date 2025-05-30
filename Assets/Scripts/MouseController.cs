@@ -1,52 +1,53 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
 public class MouseController : MonoBehaviour
 {
-    private SelectedTile selectedTile;
+    [SerializeField]
+    private LayerMask clickableTileMask;
+    public event EventHandler<OnTileSelectedEventArgs> OnTileSelected;
 
-    private void Awake()
+    public class OnTileSelectedEventArgs : EventArgs
     {
-        selectedTile = null;
+        public SelectedTile targetSelectedTile;
     }
 
     private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
+        if (Mouse.current.leftButton.wasPressedThisFrame)
         {
-            var tileHit = GetClickedTile();
-            if (!tileHit.HasValue)
-            {
+            Collider2D clicked = GetClickedCollider();
+            if (clicked == null)
                 return;
-            }
-            if (
-                tileHit.Value.collider.gameObject.TryGetComponent<SelectedTile>(
-                    out SelectedTile tile
-                )
-            )
+
+            if (clicked.TryGetComponent<SelectedTile>(out SelectedTile tile))
             {
-                if (selectedTile != null)
-                {
-                    selectedTile.Hide();
-                }
-                selectedTile = tile;
-                selectedTile.Show();
+                OnTileSelected?.Invoke(
+                    this,
+                    new OnTileSelectedEventArgs { targetSelectedTile = tile }
+                );
             }
         }
     }
 
-    public RaycastHit2D? GetClickedTile()
+    public Collider2D GetClickedCollider()
     {
-        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 mousePos2d = new(mousePos.x, mousePos.y);
+        Vector3 mouseScreenPos = Input.mousePosition;
+        mouseScreenPos.z = Mathf.Abs(Camera.main.transform.position.z);
 
-        RaycastHit2D[] hits = Physics2D.RaycastAll(mousePos2d, Vector2.zero);
+        Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
+        Vector2 worldPoint2D = new(worldMousePos.x, worldMousePos.y);
 
-        if (hits.Length > 0)
+        Collider2D[] colliders = Physics2D.OverlapPointAll(worldPoint2D, clickableTileMask);
+
+        if (colliders.Length > 0)
         {
-            return hits.OrderByDescending(i => i.collider.transform.position.z).First();
+            return colliders.OrderByDescending(c => c.transform.position.z).First();
         }
 
         return null;

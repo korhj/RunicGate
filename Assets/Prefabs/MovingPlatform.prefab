@@ -136,6 +136,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tileOffset: {x: 0, y: 0, z: 2}
   speed: 2
+  selectedTilePrefab: {fileID: 0}
 --- !u!60 &2506876590203475472
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -143,7 +144,7 @@ PolygonCollider2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8897566150864456127}
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Density: 1
   m_Material: {fileID: 0}

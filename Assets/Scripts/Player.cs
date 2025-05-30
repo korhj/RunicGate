@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -7,6 +8,9 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour, IObstacle
 {
+    [SerializeField]
+    private LayerMask clickableTileMask;
+
     [SerializeField]
     private SpriteRenderer spriteRenderer;
 
@@ -20,13 +24,18 @@ public class Player : MonoBehaviour, IObstacle
     private ExitDoor exitDoor;
 
     [SerializeField]
+    private MouseController mouseController;
+
+    [SerializeField]
     float playerSpeed = 5f;
 
     [SerializeField]
     int playerHeight = 2;
 
     [SerializeField]
-    int playerJumpHeight = 1;
+    int jumpHeight = 1;
+
+    public int JumpHeight => jumpHeight;
 
     [SerializeField]
     private Sprite upSprite;
@@ -41,6 +50,7 @@ public class Player : MonoBehaviour, IObstacle
     private Sprite rightSprite;
 
     InputAction moveAction;
+    private PathFinder pathFinder;
     private Vector3Int currentTilePos;
 
     private Vector3Int _targetTilePos;
@@ -64,6 +74,9 @@ public class Player : MonoBehaviour, IObstacle
     private GameObject carriedObject;
 
     private Vector2Int playerDirection;
+    private Vector2Int directionAfterPath;
+    private List<SelectedTile> path;
+    private SelectedTile lastTile;
 
     void Start()
     {
@@ -75,7 +88,10 @@ public class Player : MonoBehaviour, IObstacle
         isTeleporting = false;
         isWaiting = false;
         playerDirection = new(1, 0);
-
+        directionAfterPath = new(0, 0);
+        pathFinder = new PathFinder();
+        path = new();
+        lastTile = null;
         MoveToTile(new Vector3Int(0, 0, 0));
 
         runicGateManager.OnTeleport += (_, e) =>
@@ -89,6 +105,8 @@ public class Player : MonoBehaviour, IObstacle
             }
         };
 
+        mouseController.OnTileSelected += (_, e) => SetPath(e.targetSelectedTile);
+
         MapManager.Instance.AddObstacle(this);
     }
 
@@ -101,17 +119,21 @@ public class Player : MonoBehaviour, IObstacle
         if (!isMoving && !isTeleporting)
         {
             Vector2 moveValue = moveAction.ReadValue<Vector2>();
-            if (moveValue.x != 0)
+            if (path.Count > 0)
             {
-                playerDirection = new Vector2Int((int)Mathf.Sign(moveValue.x), 0);
+                MoveAlongPath();
+            }
+            else if (moveValue.x != 0)
+            {
+                Vector2Int direction = new((int)Mathf.Sign(moveValue.x), 0);
                 SetTargetTile(currentTilePos);
-                UpdateSpriteDirection(playerDirection);
+                UpdateSpriteDirection(direction);
             }
             else if (moveValue.y != 0)
             {
-                playerDirection = new Vector2Int(0, (int)Mathf.Sign(moveValue.y));
+                Vector2Int direction = new(0, (int)Mathf.Sign(moveValue.y));
                 SetTargetTile(currentTilePos);
-                UpdateSpriteDirection(playerDirection);
+                UpdateSpriteDirection(direction);
             }
         }
         else
@@ -122,6 +144,7 @@ public class Player : MonoBehaviour, IObstacle
 
     private void UpdateSpriteDirection(Vector2Int direction)
     {
+        playerDirection = direction;
         if (MathF.Abs(direction.x) > 0)
         {
             spriteRenderer.sprite = direction.x > 0 ? rightSprite : leftSprite;
@@ -157,16 +180,17 @@ public class Player : MonoBehaviour, IObstacle
 
         Vector3 worldToCheck = MapManager.Instance.TileToWorld(tileToCheck);
         Collider2D[] colliders = Physics2D.OverlapPointAll(worldToCheck);
-        if (colliders.Length == 0)
-        {
-            if (targetTileIsAccessible)
-            {
-                runicGateManager.ActivateRunicGate(tileToCheck);
-            }
-        }
+
         foreach (Collider2D collider in colliders)
         {
-            InteractWithObject(collider, tileToCheck);
+            if (InteractWithObject(collider, tileToCheck))
+            {
+                return;
+            }
+        }
+        if (targetTileIsAccessible)
+        {
+            runicGateManager.ActivateRunicGate(tileToCheck);
         }
     }
 
@@ -185,7 +209,7 @@ public class Player : MonoBehaviour, IObstacle
         return false;
     }
 
-    private void InteractWithObject(Collider2D collider, Vector3Int tileToCheck)
+    private bool InteractWithObject(Collider2D collider, Vector3Int tileToCheck)
     {
         if (collider.TryGetComponent<IPlayerInteractable>(out IPlayerInteractable interactable))
         {
@@ -194,12 +218,14 @@ public class Player : MonoBehaviour, IObstacle
             {
                 carriedObject = interactResult;
             }
-            return;
+            return true;
         }
         if (collider.TryGetComponent<RunicGate>(out _))
         {
             runicGateManager.DeactivateRunicGate(tileToCheck);
+            return true;
         }
+        return false;
     }
 
     private bool SetTargetTile(Vector3Int startingTile)
@@ -209,7 +235,7 @@ public class Player : MonoBehaviour, IObstacle
 
         Vector3Int? nextTile = MapManager.Instance.FindAvailableTileAt(
             targetPos,
-            maxZDiff: playerJumpHeight,
+            maxZDiff: jumpHeight,
             clearance: playerHeight
         );
         if (nextTile.HasValue)
@@ -221,6 +247,37 @@ public class Player : MonoBehaviour, IObstacle
         return false;
     }
 
+    private void SetPath(SelectedTile targetSelectedTile)
+    {
+        if (!isMoving && !isTeleporting && !isWaiting)
+        {
+            path = pathFinder.FindPath(
+                currentTilePos,
+                targetSelectedTile.tilePos,
+                jumpHeight: jumpHeight,
+                clearance: playerHeight
+            );
+            if (path == null || path.Count < 1)
+            {
+                Vector2Int direction =
+                    new(
+                        Mathf.Clamp(targetSelectedTile.tilePos.x - currentTilePos.x, -1, 1),
+                        Mathf.Clamp(targetSelectedTile.tilePos.y - currentTilePos.y, -1, 1)
+                    );
+                UpdateSpriteDirection(direction);
+                return;
+            }
+            lastTile = path.Last();
+            if (lastTile != targetSelectedTile)
+            {
+                directionAfterPath = new(
+                    Mathf.Clamp(targetSelectedTile.tilePos.x - lastTile.tilePos.x, -1, 1),
+                    Mathf.Clamp(targetSelectedTile.tilePos.y - lastTile.tilePos.y, -1, 1)
+                );
+            }
+        }
+    }
+
     private void MoveTowardsTargetTile()
     {
         Vector3 movementDirection = TargetTileWorldPos - transform.position;
@@ -229,8 +286,26 @@ public class Player : MonoBehaviour, IObstacle
         if (movementDistance >= movementDirection.magnitude)
         {
             transform.position = TargetTileWorldPos;
-            isMoving = false;
             currentTilePos = TargetTilePos;
+
+            if (path.Count > 0)
+            {
+                MoveAlongPath();
+            }
+            else
+            {
+                isMoving = false;
+                if (lastTile != null)
+                {
+                    lastTile.Hide();
+                }
+
+                if (directionAfterPath.magnitude != 0)
+                {
+                    UpdateSpriteDirection(directionAfterPath);
+                    directionAfterPath = new(0, 0);
+                }
+            }
         }
         else
         {
@@ -249,6 +324,18 @@ public class Player : MonoBehaviour, IObstacle
         currentTilePos = tilePos;
         TargetTilePos = tilePos;
         isMoving = false;
+    }
+
+    private void MoveAlongPath()
+    {
+        Vector3Int nextTilePos = path[0].tilePos;
+        SelectedTile nextTile = path[0];
+        path.RemoveAt(0);
+
+        Vector3Int direction = nextTilePos - currentTilePos;
+        playerDirection = new Vector2Int(direction.x, direction.y);
+        UpdateSpriteDirection(playerDirection);
+        SetTargetTile(currentTilePos);
     }
 
     IEnumerator TeleportWithCooldown(Vector3Int exitTilePos, Collider2D exitGateCollider2D)

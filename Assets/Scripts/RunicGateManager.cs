@@ -82,6 +82,7 @@ public class RunicGateManager : MonoBehaviour
             if (runicGates[i].TilePos == tilePos && runicGates[i].RunicGateObject.activeSelf)
             {
                 runicGates[i].RunicGateObject.SetActive(false);
+                MapManager.Instance.RemoveRunicGate(tilePos);
                 return;
             }
         }
@@ -98,6 +99,7 @@ public class RunicGateManager : MonoBehaviour
                 );
                 runicGates[i].TilePos = tilePos;
                 runicGates[i].RunicGateObject.SetActive(true);
+                MapManager.Instance.AddRunicGate(tilePos);
                 return;
             }
         }

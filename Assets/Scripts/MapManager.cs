@@ -23,7 +23,7 @@ public class MapManager : MonoBehaviour
     public Tilemap Tilemap => tilemap;
 
     private List<IObstacle> obstacles;
-    private Dictionary<Vector2Int, SelectedTile> map;
+    public Dictionary<Vector2Int, SelectedTile> Map { get; private set; }
 
     private void Awake()
     {
@@ -39,12 +39,26 @@ public class MapManager : MonoBehaviour
         }
 
         obstacles = new List<IObstacle>();
-        map = new Dictionary<Vector2Int, SelectedTile>();
+        Map = new Dictionary<Vector2Int, SelectedTile>();
         CreateSelectedTiles();
     }
 
     private void CreateSelectedTiles()
     {
+        foreach (Transform child in tilemap.transform)
+        {
+            Vector3Int childTilePos = tilemap.WorldToCell(child.position);
+            Vector2Int tileKey = new(childTilePos.x, childTilePos.y);
+            if (!Map.ContainsKey(tileKey))
+            {
+                SelectedTile selectedTile = Instantiate(selectedTilePrefab, child);
+
+                selectedTile.transform.position = child.transform.position;
+                selectedTile.tilePos = childTilePos;
+                selectedTile.cost = 5;
+                Map.Add(tileKey, selectedTile);
+            }
+        }
         BoundsInt bounds = tilemap.cellBounds;
 
         for (int z = bounds.max.z; z >= bounds.min.z; z--)
@@ -55,7 +69,7 @@ public class MapManager : MonoBehaviour
                 {
                     Vector3Int tilePos = new(x, y, z);
                     Vector2Int tileKey = new(x, y);
-                    if (tilemap.HasTile(tilePos) && !map.ContainsKey(tileKey))
+                    if (tilemap.HasTile(tilePos) && !Map.ContainsKey(tileKey))
                     {
                         SelectedTile selectedTile = Instantiate(
                             selectedTilePrefab,
@@ -68,14 +82,15 @@ public class MapManager : MonoBehaviour
                             worldPos.y,
                             worldPos.z + 1
                         );
-                        map.Add(tileKey, selectedTile);
+                        selectedTile.tilePos = tilePos;
+                        Map.Add(tileKey, selectedTile);
                     }
                 }
             }
         }
     }
 
-    private bool IsAvailable(Vector3Int tilePos)
+    public bool IsAvailable(Vector3Int tilePos)
     {
         foreach (IObstacle obstacle in obstacles)
         {
@@ -172,5 +187,23 @@ public class MapManager : MonoBehaviour
             }
         }
         return null;
+    }
+
+    public void AddRunicGate(Vector3Int tilePos)
+    {
+        Vector2Int tileKey = new(tilePos.x, tilePos.y);
+        if (Map.ContainsKey(tileKey))
+        {
+            Map[tileKey].cost = 100;
+        }
+    }
+
+    public void RemoveRunicGate(Vector3Int tilePos)
+    {
+        Vector2Int tileKey = new(tilePos.x, tilePos.y);
+        if (Map.ContainsKey(tileKey))
+        {
+            Map[tileKey].cost = 1;
+        }
     }
 }

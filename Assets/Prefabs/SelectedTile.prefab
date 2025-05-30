@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3604727067045791736}
   - component: {fileID: 5853718185716994969}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SelectedTileVisual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -98,7 +98,7 @@ GameObject:
   - component: {fileID: 1421263887547177601}
   - component: {fileID: 5401846888669786974}
   - component: {fileID: 4490159634901470789}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: SelectedTile
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -134,6 +134,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 5853718185716994969}
+  G: 0
+  H: 0
+  cost: 1
+  tilePos: {x: 0, y: 0, z: 0}
+  previousTile: {fileID: 0}
 --- !u!60 &4490159634901470789
 PolygonCollider2D:
   m_ObjectHideFlags: 0
@@ -147,10 +152,10 @@ PolygonCollider2D:
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 4294967295
   m_LayerOverridePriority: 0
   m_ForceSendLayers:
     serializedVersion: 2
