@@ -49,7 +49,7 @@ public class PathFinder
 
             foreach (SelectedTile neighbour in GetNeighbours(currentTile))
             {
-                Vector3Int? availableTile = MapManager.Instance.FindAvailableTileAt(
+                Vector3Int? availableTile = MapManager.Instance.FindWalkableTileAt(
                     neighbour.tilePos,
                     maxZDiff: jumpHeight,
                     clearance: clearance

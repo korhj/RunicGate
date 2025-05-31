@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
@@ -37,9 +38,13 @@ public class MouseController : MonoBehaviour
 
     public Collider2D GetClickedCollider()
     {
+        if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+        {
+            return null;
+        }
+
         Vector3 mouseScreenPos = Input.mousePosition;
         mouseScreenPos.z = Mathf.Abs(Camera.main.transform.position.z);
-
         Vector3 worldMousePos = Camera.main.ScreenToWorldPoint(mouseScreenPos);
         Vector2 worldPoint2D = new(worldMousePos.x, worldMousePos.y);
 

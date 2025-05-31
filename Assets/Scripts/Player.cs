@@ -2,12 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour, IObstacle
 {
+    [SerializeField]
+    InterfaceDataSO interfaceDataSO;
+
     [SerializeField]
     private LayerMask clickableTileMask;
 
@@ -18,13 +20,19 @@ public class Player : MonoBehaviour, IObstacle
     private RunicGateManager runicGateManager;
 
     [SerializeField]
-    private CursedMimic cursedMimicReference;
+    private PoisonFloor poisonFloor;
 
     [SerializeField]
     private ExitDoor exitDoor;
 
     [SerializeField]
     private MouseController mouseController;
+
+    [SerializeField]
+    private InteractButtonUI interactButtonUI;
+
+    [SerializeField]
+    private RunicGateButtonUI runicGateButtonUI;
 
     [SerializeField]
     float playerSpeed = 5f;
@@ -35,7 +43,8 @@ public class Player : MonoBehaviour, IObstacle
     [SerializeField]
     int jumpHeight = 1;
 
-    public int JumpHeight => jumpHeight;
+    [SerializeField]
+    float maxHealth = 100;
 
     [SerializeField]
     private Sprite upSprite;
@@ -52,7 +61,6 @@ public class Player : MonoBehaviour, IObstacle
     InputAction moveAction;
     private PathFinder pathFinder;
     private Vector3Int currentTilePos;
-
     private Vector3Int _targetTilePos;
     private Vector3 _targetTileWorldPos;
     private Vector3Int TargetTilePos
@@ -66,22 +74,22 @@ public class Player : MonoBehaviour, IObstacle
     }
     private Vector3 TargetTileWorldPos => _targetTileWorldPos;
 
-    public Vector3Int TilePosition => currentTilePos;
+    public Vector3Int TilePos => currentTilePos;
 
     private bool isMoving;
     private bool isTeleporting;
     private bool isWaiting;
+    private MapManager mapManager;
     private GameObject carriedObject;
-
     private Vector2Int playerDirection;
     private Vector2Int directionAfterPath;
     private List<SelectedTile> path;
     private SelectedTile lastTile;
+    private float health;
 
     void Start()
     {
         moveAction = InputSystem.actions.FindAction("Move");
-
         currentTilePos = new(0, 0, 0);
         TargetTilePos = new(0, 0, 0);
         isMoving = false;
@@ -93,6 +101,8 @@ public class Player : MonoBehaviour, IObstacle
         path = new();
         lastTile = null;
         MoveToTile(new Vector3Int(0, 0, 0));
+        mapManager = MapManager.Instance;
+        health = maxHealth;
 
         runicGateManager.OnTeleport += (_, e) =>
             StartCoroutine(TeleportWithCooldown(e.targetTilePos, e.exitGateCollider));
@@ -101,13 +111,15 @@ public class Player : MonoBehaviour, IObstacle
         {
             if (carriedObject != null)
             {
-                Debug.Log("Victory");
+                Debug.Log("Victory!");
             }
         };
 
         mouseController.OnTileSelected += (_, e) => SetPath(e.targetSelectedTile);
+        interactButtonUI.OnInteractButtonPressed += (_, e) => OnInteract();
+        runicGateButtonUI.OnRunicGateButtonPressed += (_, e) => RunicGateInteract();
 
-        MapManager.Instance.AddObstacle(this);
+        mapManager.AddObstacle(this);
     }
 
     void Update()
@@ -118,27 +130,35 @@ public class Player : MonoBehaviour, IObstacle
         }
         if (!isMoving && !isTeleporting)
         {
-            Vector2 moveValue = moveAction.ReadValue<Vector2>();
             if (path.Count > 0)
             {
                 MoveAlongPath();
             }
-            else if (moveValue.x != 0)
+            else
             {
-                Vector2Int direction = new((int)Mathf.Sign(moveValue.x), 0);
-                SetTargetTile(currentTilePos);
-                UpdateSpriteDirection(direction);
-            }
-            else if (moveValue.y != 0)
-            {
-                Vector2Int direction = new(0, (int)Mathf.Sign(moveValue.y));
-                SetTargetTile(currentTilePos);
-                UpdateSpriteDirection(direction);
+                HandleKeyboardMovement();
             }
         }
         else
         {
             MoveTowardsTargetTile();
+        }
+    }
+
+    private void HandleKeyboardMovement()
+    {
+        Vector2 moveValue = moveAction.ReadValue<Vector2>();
+        if (moveValue.x != 0)
+        {
+            Vector2Int direction = new((int)Mathf.Sign(moveValue.x), 0);
+            SetTargetTile(currentTilePos);
+            UpdateSpriteDirection(direction);
+        }
+        else if (moveValue.y != 0)
+        {
+            Vector2Int direction = new(0, (int)Mathf.Sign(moveValue.y));
+            SetTargetTile(currentTilePos);
+            UpdateSpriteDirection(direction);
         }
     }
 
@@ -153,6 +173,7 @@ public class Player : MonoBehaviour, IObstacle
         {
             spriteRenderer.sprite = direction.y > 0 ? upSprite : downSprite;
         }
+        SetTargetObject();
     }
 
     private void OnInteract()
@@ -169,11 +190,14 @@ public class Player : MonoBehaviour, IObstacle
             maxZDiff: 0,
             clearance: 2
         );
-        bool targetTileIsAccessible = result.HasValue;
-        if (carriedObject != null && targetTileIsAccessible)
+        if (carriedObject != null && result.HasValue)
         {
-            if (TryDropCarriedObject(tileToCheck))
+            if (carriedObject.TryGetComponent(out CursedMimic cursedMimic))
             {
+                cursedMimic.DropMimic(tileToCheck);
+                carriedObject = null;
+                interfaceDataSO.SetPlayerHasObject(false);
+                interfaceDataSO.SetTargetObject(cursedMimic.gameObject);
                 return;
             }
         }
@@ -183,49 +207,47 @@ public class Player : MonoBehaviour, IObstacle
 
         foreach (Collider2D collider in colliders)
         {
-            if (InteractWithObject(collider, tileToCheck))
+            if (collider.TryGetComponent(out IPlayerInteractable interactable))
             {
+                GameObject interactResult = interactable.Interact();
+                if (interactResult != null)
+                {
+                    carriedObject = interactResult;
+                    interfaceDataSO.SetPlayerHasObject(true);
+                    SetTargetObject();
+                }
                 return;
             }
         }
-        if (targetTileIsAccessible)
+    }
+
+    private void RunicGateInteract()
+    {
+        Vector3Int tileToCheck =
+            currentTilePos + new Vector3Int(playerDirection.x, playerDirection.y, 0);
+        Vector3 worldToCheck = MapManager.Instance.TileToWorld(tileToCheck);
+        Collider2D[] colliders = Physics2D.OverlapPointAll(worldToCheck);
+
+        foreach (Collider2D collider in colliders)
+        {
+            if (collider.TryGetComponent<RunicGate>(out _))
+            {
+                runicGateManager.DeactivateRunicGate(tileToCheck);
+                SetTargetObject();
+                return;
+            }
+        }
+
+        Vector3Int? result = MapManager.Instance.FindWalkableTileAt(
+            tileToCheck,
+            maxZDiff: 0,
+            clearance: 2
+        );
+        if (result.HasValue)
         {
             runicGateManager.ActivateRunicGate(tileToCheck);
+            SetTargetObject();
         }
-    }
-
-    private bool TryDropCarriedObject(Vector3Int tileToCheck)
-    {
-        if (carriedObject.TryGetComponent<CursedMimic>(out CursedMimic cursedMimic))
-        {
-            bool tileHasGate = runicGateManager.TileHasGate(tileToCheck);
-            if (!tileHasGate)
-            {
-                cursedMimic.DropMimic(tileToCheck);
-                carriedObject = null;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private bool InteractWithObject(Collider2D collider, Vector3Int tileToCheck)
-    {
-        if (collider.TryGetComponent<IPlayerInteractable>(out IPlayerInteractable interactable))
-        {
-            GameObject interactResult = interactable.Interact();
-            if (interactResult != null)
-            {
-                carriedObject = interactResult;
-            }
-            return true;
-        }
-        if (collider.TryGetComponent<RunicGate>(out _))
-        {
-            runicGateManager.DeactivateRunicGate(tileToCheck);
-            return true;
-        }
-        return false;
     }
 
     private bool SetTargetTile(Vector3Int startingTile)
@@ -233,7 +255,7 @@ public class Player : MonoBehaviour, IObstacle
         Vector3Int targetPos =
             startingTile + new Vector3Int(playerDirection.x, playerDirection.y, 0);
 
-        Vector3Int? nextTile = MapManager.Instance.FindAvailableTileAt(
+        Vector3Int? nextTile = MapManager.Instance.FindWalkableTileAt(
             targetPos,
             maxZDiff: jumpHeight,
             clearance: playerHeight
@@ -295,6 +317,7 @@ public class Player : MonoBehaviour, IObstacle
             else
             {
                 isMoving = false;
+                SetTargetObject();
                 if (lastTile != null)
                 {
                     lastTile.Hide();
@@ -317,15 +340,6 @@ public class Player : MonoBehaviour, IObstacle
         }
     }
 
-    public void MoveToTile(Vector3Int tilePos)
-    {
-        Vector3 worldPos = MapManager.Instance.TileToWorld(tilePos);
-        transform.position = worldPos;
-        currentTilePos = tilePos;
-        TargetTilePos = tilePos;
-        isMoving = false;
-    }
-
     private void MoveAlongPath()
     {
         Vector3Int nextTilePos = path[0].tilePos;
@@ -336,6 +350,58 @@ public class Player : MonoBehaviour, IObstacle
         playerDirection = new Vector2Int(direction.x, direction.y);
         UpdateSpriteDirection(playerDirection);
         SetTargetTile(currentTilePos);
+    }
+
+    private void SetTargetObject()
+    {
+        Vector3Int tileToCheck =
+            currentTilePos + new Vector3Int(playerDirection.x, playerDirection.y, 0);
+        Vector3 worldToCheck = MapManager.Instance.TileToWorld(tileToCheck);
+        Collider2D[] colliders = Physics2D.OverlapPointAll(worldToCheck);
+
+        foreach (Collider2D collider in colliders)
+        {
+            if (collider.TryGetComponent<RunicGate>(out _))
+            {
+                interfaceDataSO.SetTargetObject(collider.gameObject);
+                return;
+            }
+            if (collider.TryGetComponent<IPlayerInteractable>(out _))
+            {
+                interfaceDataSO.SetTargetObject(collider.gameObject);
+                return;
+            }
+        }
+        interfaceDataSO.SetTargetObject(null);
+    }
+
+    [ContextMenu("Take Damage")]
+    private void TakeDamage()
+    {
+        health -= 10;
+        interfaceDataSO.SetPlayerHealthPercent(health / maxHealth);
+    }
+
+    public void MoveToTile(Vector3Int tilePos)
+    {
+        Vector3 worldPos = MapManager.Instance.TileToWorld(tilePos);
+        transform.position = worldPos;
+        currentTilePos = tilePos;
+        TargetTilePos = tilePos;
+        isMoving = false;
+        SetTargetObject();
+    }
+
+    public void SetParent(Transform parentTransform)
+    {
+        transform.SetParent(parentTransform);
+        if (parentTransform != null)
+        {
+            isWaiting = true;
+            return;
+        }
+        isWaiting = false;
+        currentTilePos = MapManager.Instance.WorldToTile(transform.position);
     }
 
     IEnumerator TeleportWithCooldown(Vector3Int exitTilePos, Collider2D exitGateCollider2D)
@@ -362,17 +428,5 @@ public class Player : MonoBehaviour, IObstacle
             yield return new WaitForSeconds(0.2f);
         }
         isTeleporting = false;
-    }
-
-    public void SetParent(Transform parentTransform)
-    {
-        transform.SetParent(parentTransform);
-        if (parentTransform != null)
-        {
-            isWaiting = true;
-            return;
-        }
-        isWaiting = false;
-        currentTilePos = MapManager.Instance.WorldToTile(transform.position);
     }
 }

@@ -100,7 +100,7 @@ GameObject:
   - component: {fileID: 1862820223850967607}
   - component: {fileID: 3915592335638222232}
   m_Layer: 0
-  m_Name: Button
+  m_Name: TimedButton
   m_TagString: Obstacle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

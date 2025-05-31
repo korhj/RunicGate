@@ -2,7 +2,7 @@ using UnityEngine;
 
 public interface IObstacle
 {
-    Vector3Int TilePosition { get; }
+    Vector3Int TilePos { get; }
     public void SetParent(Transform parentTransform);
     public void MoveToTile(Vector3Int tilePos);
 }

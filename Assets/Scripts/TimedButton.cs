@@ -1,13 +1,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Button : MonoBehaviour, IPlayerInteractable
+public class TimedButton : MonoBehaviour, IPlayerInteractable
 {
     [SerializeField]
     private float activationTime;
 
     [SerializeField]
     private List<MovingPlatform> movingPlatforms;
+
+    [SerializeField]
+    private Sprite buttonSprite;
 
     private float time;
 
@@ -38,5 +41,10 @@ public class Button : MonoBehaviour, IPlayerInteractable
         foreach (MovingPlatform platform in movingPlatforms)
             platform.Activate();
         return null;
+    }
+
+    public Sprite GetButtonSprite()
+    {
+        return buttonSprite;
     }
 }

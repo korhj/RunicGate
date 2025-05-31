@@ -16,6 +16,15 @@ public class MapManager : MonoBehaviour
     private WalkableGameObjectsSO walkableGameObjects;
 
     [SerializeField]
+    private RunicGateManager runicGateManager;
+
+    [SerializeField]
+    private int childGameObjectCost;
+
+    [SerializeField]
+    private int runicGateCost;
+
+    [SerializeField]
     SelectedTile selectedTilePrefab;
 
     [SerializeField]
@@ -55,7 +64,7 @@ public class MapManager : MonoBehaviour
 
                 selectedTile.transform.position = child.transform.position;
                 selectedTile.tilePos = childTilePos;
-                selectedTile.cost = 5;
+                selectedTile.cost = childGameObjectCost;
                 Map.Add(tileKey, selectedTile);
             }
         }
@@ -94,7 +103,7 @@ public class MapManager : MonoBehaviour
     {
         foreach (IObstacle obstacle in obstacles)
         {
-            if (obstacle.TilePosition == tilePos)
+            if (obstacle.TilePos == tilePos)
             {
                 return false;
             }
@@ -124,7 +133,7 @@ public class MapManager : MonoBehaviour
         return false;
     }
 
-    public Vector3Int? FindAvailableTileAt(Vector3Int tilePos, int maxZDiff, int clearance)
+    public Vector3Int? FindWalkableTileAt(Vector3Int tilePos, int maxZDiff, int clearance)
     {
         int x = tilePos.x;
         int y = tilePos.y;
@@ -147,6 +156,15 @@ public class MapManager : MonoBehaviour
         }
 
         return null;
+    }
+
+    public Vector3Int? FindAvailableTileAt(Vector3Int tilePos, int maxZDiff, int clearance)
+    {
+        if (runicGateManager.TileHasGate(tilePos))
+        {
+            return null;
+        }
+        return FindWalkableTileAt(tilePos, maxZDiff, clearance);
     }
 
     public Vector3 TileToWorld(Vector3Int tilePos)
@@ -181,7 +199,7 @@ public class MapManager : MonoBehaviour
     {
         foreach (IObstacle obstacle in obstacles)
         {
-            if (obstacle.TilePosition == tilePos)
+            if (obstacle.TilePos == tilePos)
             {
                 return obstacle;
             }
@@ -194,7 +212,7 @@ public class MapManager : MonoBehaviour
         Vector2Int tileKey = new(tilePos.x, tilePos.y);
         if (Map.ContainsKey(tileKey))
         {
-            Map[tileKey].cost = 100;
+            Map[tileKey].cost = runicGateCost;
         }
     }
 
@@ -203,6 +221,14 @@ public class MapManager : MonoBehaviour
         Vector2Int tileKey = new(tilePos.x, tilePos.y);
         if (Map.ContainsKey(tileKey))
         {
+            foreach (Transform child in tilemap.transform)
+            {
+                Vector3Int childTilePos = tilemap.WorldToCell(child.position);
+                if (childTilePos == tilePos)
+                {
+                    Map[tileKey].cost = childGameObjectCost;
+                }
+            }
             Map[tileKey].cost = 1;
         }
     }

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28abb3095fd5e524ea78ed120e1c08fa, type: 3}
+  m_Name: InterfaceDataSO
+  m_EditorClassIdentifier: 
+  playerHealth: 0
+  runicGateCount: 0
+  targetObject: {fileID: 0}
+  playerHasObject: 0
+  onHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  onRunicGateCountChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  onTargetChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  onPickUpOrDrop:
+    m_PersistentCalls:
+      m_Calls: []

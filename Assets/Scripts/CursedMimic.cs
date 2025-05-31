@@ -5,8 +5,11 @@ public class CursedMimic : MonoBehaviour, IPlayerInteractable, IObstacle
 {
     [SerializeField]
     Vector3Int startingTilePos;
+
+    [SerializeField]
+    Sprite buttonSprite;
     private Vector3Int tilePos;
-    public Vector3Int TilePosition => tilePos;
+    public Vector3Int TilePos => tilePos;
 
     void Start()
     {
@@ -25,8 +28,8 @@ public class CursedMimic : MonoBehaviour, IPlayerInteractable, IObstacle
     public void DropMimic(Vector3Int Pos)
     {
         gameObject.SetActive(true);
-        MapManager.Instance.AddObstacle(this);
         MoveToTile(Pos);
+        MapManager.Instance.AddObstacle(this);
     }
 
     public GameObject Interact()
@@ -44,5 +47,10 @@ public class CursedMimic : MonoBehaviour, IPlayerInteractable, IObstacle
             return;
         }
         tilePos = MapManager.Instance.WorldToTile(transform.position);
+    }
+
+    public Sprite GetButtonSprite()
+    {
+        return buttonSprite;
     }
 }

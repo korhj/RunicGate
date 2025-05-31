@@ -15,6 +15,9 @@ public class RunicGateManager : MonoBehaviour
 
     [SerializeField]
     GameObject runicGatePrefab;
+
+    [SerializeField]
+    InterfaceDataSO interfaceDataSO;
     private RunicGateData[] runicGates;
 
     private void Start()
@@ -29,6 +32,7 @@ public class RunicGateManager : MonoBehaviour
 
             runicGates[i] = new RunicGateData(runicGate, Vector3Int.zero);
         }
+        interfaceDataSO.SetRunicGateCount(0);
     }
 
     private void RunicGate_OnRunicGateEntered(
@@ -83,6 +87,7 @@ public class RunicGateManager : MonoBehaviour
             {
                 runicGates[i].RunicGateObject.SetActive(false);
                 MapManager.Instance.RemoveRunicGate(tilePos);
+                interfaceDataSO.SetRunicGateCount(interfaceDataSO.runicGateCount - 1);
                 return;
             }
         }
@@ -100,6 +105,7 @@ public class RunicGateManager : MonoBehaviour
                 runicGates[i].TilePos = tilePos;
                 runicGates[i].RunicGateObject.SetActive(true);
                 MapManager.Instance.AddRunicGate(tilePos);
+                interfaceDataSO.SetRunicGateCount(interfaceDataSO.runicGateCount + 1);
                 return;
             }
         }
