@@ -10,7 +10,7 @@ public class TimedButton : MonoBehaviour, IPlayerInteractable
     private List<MovingPlatform> movingPlatforms;
 
     [SerializeField]
-    private Sprite buttonSprite;
+    private List<ArrowTrap> arrowTraps;
 
     private float time;
 
@@ -32,6 +32,8 @@ public class TimedButton : MonoBehaviour, IPlayerInteractable
         {
             foreach (MovingPlatform platform in movingPlatforms)
                 platform.Deactivate();
+            foreach (ArrowTrap trap in arrowTraps)
+                trap.Deactivate();
         }
     }
 
@@ -40,11 +42,8 @@ public class TimedButton : MonoBehaviour, IPlayerInteractable
         time = activationTime;
         foreach (MovingPlatform platform in movingPlatforms)
             platform.Activate();
+        foreach (ArrowTrap trap in arrowTraps)
+            trap.Activate();
         return null;
-    }
-
-    public Sprite GetButtonSprite()
-    {
-        return buttonSprite;
     }
 }

@@ -20,9 +20,6 @@ public class Player : MonoBehaviour, IObstacle
     private RunicGateManager runicGateManager;
 
     [SerializeField]
-    private PoisonFloor poisonFloor;
-
-    [SerializeField]
     private ExitDoor exitDoor;
 
     [SerializeField]
@@ -376,9 +373,9 @@ public class Player : MonoBehaviour, IObstacle
     }
 
     [ContextMenu("Take Damage")]
-    private void TakeDamage()
+    public void TakeDamage(int damage)
     {
-        health -= 10;
+        health -= damage;
         interfaceDataSO.SetPlayerHealthPercent(health / maxHealth);
     }
 

@@ -3,15 +3,14 @@ using UnityEngine;
 
 public class PoisonFloor : MonoBehaviour
 {
-    public event EventHandler OnPoisonFloorEnter;
-
     [SerializeField]
-    int damage;
-
-    void Start() { }
+    int damage = 10;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        OnPoisonFloorEnter?.Invoke(this, EventArgs.Empty);
+        if (collision.TryGetComponent(out Player player))
+        {
+            player.TakeDamage(damage);
+        }
     }
 }

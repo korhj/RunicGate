@@ -48,9 +48,4 @@ public class CursedMimic : MonoBehaviour, IPlayerInteractable, IObstacle
         }
         tilePos = MapManager.Instance.WorldToTile(transform.position);
     }
-
-    public Sprite GetButtonSprite()
-    {
-        return buttonSprite;
-    }
 }

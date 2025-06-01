@@ -10,6 +10,9 @@ public class RunicGateButtonUI : MonoBehaviour
     InterfaceDataSO interfaceDataSO;
 
     [SerializeField]
+    Button button;
+
+    [SerializeField]
     Image image;
 
     [SerializeField]
@@ -21,11 +24,8 @@ public class RunicGateButtonUI : MonoBehaviour
     [SerializeField]
     Sprite noGatesUsed;
 
-    Button button;
-
     void Start()
     {
-        button = GetComponent<Button>();
         button.onClick.AddListener(() => OnRunicGateButtonPressed?.Invoke(this, EventArgs.Empty));
     }
 

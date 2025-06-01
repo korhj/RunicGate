@@ -1,16 +1,13 @@
 using System;
 using UnityEngine;
 
-public class MovingPlatform : MonoBehaviour
+public class MovingPlatform : MonoBehaviour, IActivatableTrap
 {
     [SerializeField]
     private Vector3Int tileOffset;
 
     [SerializeField]
     private float speed;
-
-    [SerializeField]
-    private SelectedTile selectedTilePrefab;
 
     private bool isActive;
     private bool isMoving;

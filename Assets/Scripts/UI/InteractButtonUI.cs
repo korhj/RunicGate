@@ -20,12 +20,12 @@ public class InteractButtonUI : MonoBehaviour
 
     [SerializeField]
     Image image;
+
+    [SerializeField]
     Button button;
 
-    void Start()
+    void Awake()
     {
-        button = GetComponent<Button>();
-
         button.onClick.AddListener(() => OnInteractButtonPressed?.Invoke(this, EventArgs.Empty));
         SetInteractable(interfaceDataSO.targetObject);
     }

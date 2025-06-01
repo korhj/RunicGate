@@ -7,6 +7,9 @@ public class PressurePlate : MonoBehaviour
     [SerializeField]
     private List<MovingPlatform> movingPlatforms;
 
+    [SerializeField]
+    private List<ArrowTrap> arrowTraps;
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (movingPlatforms == null)
@@ -16,6 +19,8 @@ public class PressurePlate : MonoBehaviour
 
         foreach (MovingPlatform platform in movingPlatforms)
             platform.Activate();
+        foreach (ArrowTrap trap in arrowTraps)
+            trap.Activate();
     }
 
     private void OnTriggerExit2D(Collider2D other)
@@ -26,8 +31,8 @@ public class PressurePlate : MonoBehaviour
         }
 
         foreach (MovingPlatform platform in movingPlatforms)
-        {
             platform.Deactivate();
-        }
+        foreach (ArrowTrap trap in arrowTraps)
+            trap.Deactivate();
     }
 }
