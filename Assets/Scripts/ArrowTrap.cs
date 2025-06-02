@@ -35,8 +35,8 @@ public class ArrowTrap : MonoBehaviour, IActivatableTrap
     private float b;
     private float timer;
     private bool isActive;
-    private Vector3Int worldPos;
     private Vector3 arrowSpawnPoint;
+    private Vector2 dir;
 
     private void Start()
     {
@@ -44,6 +44,7 @@ public class ArrowTrap : MonoBehaviour, IActivatableTrap
         isActive = false;
         Vector3Int tilePos = MapManager.Instance.WorldToTile(transform.position);
         arrowSpawnPoint = MapManager.Instance.TileToWorld(tilePos - new Vector3Int(0, 0, 2));
+        dir = direction == Direction.Right ? new Vector2(1, -0.5f) : new Vector2(-1, -0.5f);
     }
 
     private void Update()
@@ -58,7 +59,6 @@ public class ArrowTrap : MonoBehaviour, IActivatableTrap
 
     private void ShootArrow()
     {
-        Vector2 dir = new(a, b);
         Arrow arrow = Instantiate(arrowPrefab, arrowSpawnPoint, Quaternion.identity);
         arrow.Shoot(arrowThrust, dir, arrowDamage, arrowlifetime);
     }

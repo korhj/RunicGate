@@ -44,6 +44,9 @@ public class Player : MonoBehaviour, IObstacle
     float maxHealth = 100;
 
     [SerializeField]
+    float invulnerabilityTimerMax;
+
+    [SerializeField]
     private Sprite upSprite;
 
     [SerializeField]
@@ -83,6 +86,7 @@ public class Player : MonoBehaviour, IObstacle
     private List<SelectedTile> path;
     private SelectedTile lastTile;
     private float health;
+    private float invulnerabilityTimer;
 
     void Start()
     {
@@ -100,6 +104,7 @@ public class Player : MonoBehaviour, IObstacle
         MoveToTile(new Vector3Int(0, 0, 0));
         mapManager = MapManager.Instance;
         health = maxHealth;
+        invulnerabilityTimer = invulnerabilityTimerMax;
 
         runicGateManager.OnTeleport += (_, e) =>
             StartCoroutine(TeleportWithCooldown(e.targetTilePos, e.exitGateCollider));
@@ -140,6 +145,7 @@ public class Player : MonoBehaviour, IObstacle
         {
             MoveTowardsTargetTile();
         }
+        invulnerabilityTimer -= Time.deltaTime;
     }
 
     private void HandleKeyboardMovement()
@@ -375,8 +381,12 @@ public class Player : MonoBehaviour, IObstacle
     [ContextMenu("Take Damage")]
     public void TakeDamage(int damage)
     {
-        health -= damage;
-        interfaceDataSO.SetPlayerHealthPercent(health / maxHealth);
+        if (invulnerabilityTimer <= 0)
+        {
+            health -= damage;
+            interfaceDataSO.SetPlayerHealthPercent(health / maxHealth);
+            invulnerabilityTimer = invulnerabilityTimerMax;
+        }
     }
 
     public void MoveToTile(Vector3Int tilePos)
