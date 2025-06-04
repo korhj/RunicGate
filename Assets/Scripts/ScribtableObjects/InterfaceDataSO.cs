@@ -20,7 +20,7 @@ public class InterfaceDataSO : ScriptableObject
     public float playerHealthPercent;
     public int runicGateCount;
     public GameObject targetObject;
-    public bool playerHasObject;
+    public bool playerHasMimic;
 
     [Header("Events")]
     public FloatEvent onHealthChanged;
@@ -57,10 +57,10 @@ public class InterfaceDataSO : ScriptableObject
 
     public void SetPlayerHasObject(bool hasObject)
     {
-        if (playerHasObject != hasObject)
+        if (playerHasMimic != hasObject)
         {
-            playerHasObject = hasObject;
-            onPickUpOrDrop.Invoke(playerHasObject);
+            playerHasMimic = hasObject;
+            onPickUpOrDrop.Invoke(playerHasMimic);
         }
     }
 }

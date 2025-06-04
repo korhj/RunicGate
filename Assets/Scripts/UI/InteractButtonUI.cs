@@ -42,7 +42,7 @@ public class InteractButtonUI : MonoBehaviour
 
     private void SetSprite(IPlayerInteractable target)
     {
-        if (target == null && interfaceDataSO.playerHasObject)
+        if (target == null && interfaceDataSO.playerHasMimic)
         {
             image.sprite = mimicUISprite;
             return;
@@ -65,13 +65,13 @@ public class InteractButtonUI : MonoBehaviour
 
     private void SetInteractable(GameObject obj)
     {
-        if (obj == null && !interfaceDataSO.playerHasObject)
+        if (obj == null && !interfaceDataSO.playerHasMimic)
         {
             SetSprite(null);
             button.interactable = false;
             return;
         }
-        if (obj == null && interfaceDataSO.playerHasObject)
+        if (obj == null && interfaceDataSO.playerHasMimic)
         {
             SetSprite(null);
             button.interactable = true;

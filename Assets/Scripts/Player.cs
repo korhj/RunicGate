@@ -7,6 +7,8 @@ using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour, IObstacle
 {
+    public event EventHandler OnPlayerDeath;
+
     [SerializeField]
     InterfaceDataSO interfaceDataSO;
 
@@ -18,9 +20,6 @@ public class Player : MonoBehaviour, IObstacle
 
     [SerializeField]
     private RunicGateManager runicGateManager;
-
-    [SerializeField]
-    private ExitDoor exitDoor;
 
     [SerializeField]
     private MouseController mouseController;
@@ -108,14 +107,6 @@ public class Player : MonoBehaviour, IObstacle
 
         runicGateManager.OnTeleport += (_, e) =>
             StartCoroutine(TeleportWithCooldown(e.targetTilePos, e.exitGateCollider));
-
-        exitDoor.OnExitDoorEntered += (_, e) =>
-        {
-            if (carriedObject != null)
-            {
-                Debug.Log("Victory!");
-            }
-        };
 
         mouseController.OnTileSelected += (_, e) => SetPath(e.targetSelectedTile);
         interactButtonUI.OnInteractButtonPressed += (_, e) => OnInteract();
@@ -386,6 +377,10 @@ public class Player : MonoBehaviour, IObstacle
             health -= damage;
             interfaceDataSO.SetPlayerHealthPercent(health / maxHealth);
             invulnerabilityTimer = invulnerabilityTimerMax;
+            if (health <= 0)
+            {
+                OnPlayerDeath?.Invoke(this, EventArgs.Empty);
+            }
         }
     }
 

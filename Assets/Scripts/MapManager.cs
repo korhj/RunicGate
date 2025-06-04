@@ -8,9 +8,7 @@ using UnityEngine.Tilemaps;
 public class MapManager : MonoBehaviour
 {
     public static MapManager Instance { get; private set; }
-
-    [SerializeField]
-    private Tilemap tilemap;
+    public event EventHandler OnStageClear;
 
     [SerializeField]
     private WalkableGameObjectsSO walkableGameObjects;
@@ -29,8 +27,12 @@ public class MapManager : MonoBehaviour
 
     [SerializeField]
     GameObject selectedTileContainer;
-    public Tilemap Tilemap => tilemap;
 
+    [SerializeField]
+    ExitDoor exitDoor;
+
+    [SerializeField]
+    Tilemap tilemap;
     private List<IObstacle> obstacles;
     public Dictionary<Vector2Int, SelectedTile> Map { get; private set; }
 
@@ -42,14 +44,24 @@ public class MapManager : MonoBehaviour
         }
         Instance = this;
 
-        if (tilemap == null)
-        {
-            Debug.LogError("Tilemap not found.");
-        }
-
         obstacles = new List<IObstacle>();
         Map = new Dictionary<Vector2Int, SelectedTile>();
         CreateSelectedTiles();
+    }
+
+    private void OnEnable()
+    {
+        exitDoor.OnExitDoorEntered += HandleExitDoorEntered;
+    }
+
+    private void OnDisable()
+    {
+        exitDoor.OnExitDoorEntered -= HandleExitDoorEntered;
+    }
+
+    private void HandleExitDoorEntered(object sender, EventArgs e)
+    {
+        OnStageClear?.Invoke(this, EventArgs.Empty);
     }
 
     private void CreateSelectedTiles()
@@ -60,7 +72,8 @@ public class MapManager : MonoBehaviour
             Vector2Int tileKey = new(childTilePos.x, childTilePos.y);
             if (!Map.ContainsKey(tileKey))
             {
-                SelectedTile selectedTile = Instantiate(selectedTilePrefab, child);
+                SelectedTile selectedTile = Instantiate(selectedTilePrefab);
+                selectedTile.transform.SetParent(child);
 
                 selectedTile.transform.position = child.transform.position;
                 selectedTile.tilePos = childTilePos;
