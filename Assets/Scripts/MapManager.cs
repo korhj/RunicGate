@@ -131,6 +131,14 @@ public class MapManager : MonoBehaviour
             }
 
             GameObject obj = child.gameObject;
+            if (obj.TryGetComponent(out MovingPlatform movingPlatform))
+            {
+                if (movingPlatform.IsMoving)
+                {
+                    return false;
+                }
+                return true;
+            }
             foreach (var comp in walkableGameObjects.walkableComponents)
             {
                 if (obj.GetComponent(comp.GetType()) != null)

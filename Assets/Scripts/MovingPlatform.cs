@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class MovingPlatform : MonoBehaviour, IActivatableTrap
@@ -10,7 +11,7 @@ public class MovingPlatform : MonoBehaviour, IActivatableTrap
     private float speed;
 
     private bool isActive;
-    private bool isMoving;
+    public bool IsMoving { get; private set; }
     private Vector3 startWorldPos;
     private Vector3 targetWorldPos;
     private IObstacle objectOnPlatform;
@@ -19,7 +20,7 @@ public class MovingPlatform : MonoBehaviour, IActivatableTrap
     private void Start()
     {
         isActive = false;
-        isMoving = false;
+        IsMoving = false;
         startWorldPos = transform.position;
         mapManager = MapManager.Instance;
         Vector3Int startPos = mapManager.WorldToTile(startWorldPos);
@@ -33,13 +34,13 @@ public class MovingPlatform : MonoBehaviour, IActivatableTrap
 
         if (movementDistance >= (transform.position - destination).magnitude)
         {
-            if (isMoving && objectOnPlatform != null)
+            if (IsMoving && objectOnPlatform != null)
             {
                 objectOnPlatform.MoveToTile(mapManager.WorldToTile(destination));
                 objectOnPlatform.SetParent(null);
                 objectOnPlatform = null;
             }
-            if (isMoving)
+            if (IsMoving)
             {
                 SelectedTile childTile = transform.GetComponentInChildren<SelectedTile>();
                 if (childTile != null)
@@ -48,11 +49,11 @@ public class MovingPlatform : MonoBehaviour, IActivatableTrap
                 }
             }
             transform.position = destination;
-            isMoving = false;
+            IsMoving = false;
             return;
         }
 
-        if (!isMoving)
+        if (!IsMoving)
         {
             IObstacle obstacle = mapManager.GetObstacle(mapManager.WorldToTile(transform.position));
             if (obstacle != null)
@@ -62,7 +63,7 @@ public class MovingPlatform : MonoBehaviour, IActivatableTrap
             }
         }
 
-        isMoving = true;
+        IsMoving = true;
         transform.position = Vector3.MoveTowards(transform.position, destination, movementDistance);
     }
 

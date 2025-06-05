@@ -10,7 +10,7 @@ public class PoisonFloor : MonoBehaviour
     {
         if (collision.TryGetComponent(out Player player))
         {
-            player.TakeDamage(damage);
+            player.TakeDamage(damage, true);
         }
     }
 }

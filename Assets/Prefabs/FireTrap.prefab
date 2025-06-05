@@ -49,7 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cooldown: 5
   activeDuration: 2
-  damage: 10
+  damage: 2
   spriteRenderer: {fileID: 7701218578440125260}
   onSprite: {fileID: 712397489, guid: ea17aefcee37a834eb891acee1487845, type: 3}
   offSprite: {fileID: -1616963128, guid: ea17aefcee37a834eb891acee1487845, type: 3}

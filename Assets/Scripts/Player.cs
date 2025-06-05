@@ -375,9 +375,9 @@ public class Player : MonoBehaviour, IObstacle
     }
 
     [ContextMenu("Take Damage")]
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, bool ignoreInvulnerability = false)
     {
-        if (invulnerabilityTimer <= 0)
+        if (invulnerabilityTimer <= 0 || ignoreInvulnerability)
         {
             health -= damage;
             interfaceDataSO.SetPlayerHealthPercent(health / maxHealth);

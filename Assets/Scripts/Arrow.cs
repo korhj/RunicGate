@@ -11,7 +11,9 @@ public class Arrow : MonoBehaviour
         Vector3Int tilePos = MapManager.Instance.WorldToTile(transform.position);
         Vector3Int? tileAtPos = MapManager.Instance.FindWalkableTileAt(tilePos, 0, 2);
         if (!tileAtPos.HasValue)
+        {
             Destroy(gameObject);
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
