@@ -11,7 +11,9 @@ public class GameManager : MonoBehaviour
 
     [SerializeField]
     StageDataSO stageDataSO;
-    private StageDataSO.GameStage currentStage;
+
+    [SerializeField]
+    InterfaceDataSO interfaceDataSO;
 
     void Awake()
     {
@@ -35,6 +37,10 @@ public class GameManager : MonoBehaviour
 
     private void StageClear()
     {
+        interfaceDataSO.SetPlayerHasObject(false);
+        interfaceDataSO.SetPlayerHealthPercent(1);
+        interfaceDataSO.SetRunicGateCount(0);
+        interfaceDataSO.SetTargetObject(null);
         Loader.LoadNextStage();
     }
 

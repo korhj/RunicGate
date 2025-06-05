@@ -1783,6 +1783,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   player: {fileID: 488548434}
   stageDataSO: {fileID: 11400000, guid: 6be50ff90fba7314da6d1386a7d21266, type: 2}
+  interfaceDataSO: {fileID: 11400000, guid: 40820b4a2fdb82c419f04439abc5de7d, type: 2}
 --- !u!4 &2035826601
 Transform:
   m_ObjectHideFlags: 0
