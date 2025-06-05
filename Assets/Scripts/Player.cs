@@ -265,6 +265,11 @@ public class Player : MonoBehaviour, IObstacle
 
     private void SetPath(SelectedTile targetSelectedTile)
     {
+        if (path.Count > 0)
+        {
+            path.Clear();
+            return;
+        }
         if (!isMoving && !isTeleporting && !isWaiting)
         {
             path = pathFinder.FindPath(
