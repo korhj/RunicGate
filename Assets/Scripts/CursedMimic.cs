@@ -5,9 +5,6 @@ public class CursedMimic : MonoBehaviour, IPlayerInteractable, IObstacle
 {
     [SerializeField]
     Vector3Int startingTilePos;
-
-    [SerializeField]
-    Sprite buttonSprite;
     private Vector3Int tilePos;
     public Vector3Int TilePos => tilePos;
 
