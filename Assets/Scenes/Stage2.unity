@@ -151,6 +151,7 @@ MonoBehaviour:
   clickableTileMask:
     serializedVersion: 2
     m_Bits: 8
+  doubleClickTimer: 0
 --- !u!4 &307473258
 Transform:
   m_ObjectHideFlags: 0
@@ -791,6 +792,7 @@ MonoBehaviour:
   mimicUISprite: {fileID: 4106722643359436003, guid: 1486faf1a2ca2384293ba13cab86ce48, type: 3}
   timedButtonUISprite: {fileID: -948133683, guid: 1486faf1a2ca2384293ba13cab86ce48, type: 3}
   noTargetUISprite: {fileID: 1788072369, guid: 1486faf1a2ca2384293ba13cab86ce48, type: 3}
+  fountainUISprite: {fileID: 787521248, guid: 1486faf1a2ca2384293ba13cab86ce48, type: 3}
   image: {fileID: 590896038}
   button: {fileID: 590896037}
 --- !u!222 &590896040

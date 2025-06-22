@@ -19,6 +19,9 @@ public class InteractButtonUI : MonoBehaviour
     Sprite noTargetUISprite;
 
     [SerializeField]
+    Sprite fountainUISprite;
+
+    [SerializeField]
     Image image;
 
     [SerializeField]
@@ -60,6 +63,10 @@ public class InteractButtonUI : MonoBehaviour
         if (target is TimedButton)
         {
             image.sprite = timedButtonUISprite;
+        }
+        if (target is HealingFountain)
+        {
+            image.sprite = fountainUISprite;
         }
     }
 

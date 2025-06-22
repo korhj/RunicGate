@@ -82,6 +82,7 @@ public class Player : MonoBehaviour, IObstacle
     private GameObject carriedObject;
     private Vector2Int playerDirection;
     private Vector2Int directionAfterPath;
+    private bool interactAfterPath;
     private List<SelectedTile> path;
     private SelectedTile lastTile;
     private float health;
@@ -97,6 +98,7 @@ public class Player : MonoBehaviour, IObstacle
         isWaiting = false;
         playerDirection = new(1, 0);
         directionAfterPath = new(0, 0);
+        interactAfterPath = false;
         pathFinder = new PathFinder();
         path = new();
         lastTile = null;
@@ -109,6 +111,8 @@ public class Player : MonoBehaviour, IObstacle
             StartCoroutine(TeleportWithCooldown(e.targetTilePos, e.exitGateCollider));
 
         mouseController.OnTileSelected += (_, e) => SetPath(e.targetSelectedTile);
+        mouseController.OnTileDoubleClicked += (_, e) => OnDoubleClick();
+
         interactButtonUI.OnInteractButtonPressed += (_, e) => OnInteract();
         runicGateButtonUI.OnRunicGateButtonPressed += (_, e) => RunicGateInteract();
 
@@ -299,6 +303,16 @@ public class Player : MonoBehaviour, IObstacle
         }
     }
 
+    private void OnDoubleClick()
+    {
+        if (!isMoving)
+        {
+            OnInteract();
+            return;
+        }
+        interactAfterPath = true;
+    }
+
     private void MoveTowardsTargetTile()
     {
         Vector3 movementDirection = TargetTileWorldPos - transform.position;
@@ -326,6 +340,11 @@ public class Player : MonoBehaviour, IObstacle
                 {
                     UpdateSpriteDirection(directionAfterPath);
                     directionAfterPath = new(0, 0);
+                }
+                if (interactAfterPath)
+                {
+                    OnInteract();
+                    interactAfterPath = false;
                 }
             }
         }
@@ -374,7 +393,6 @@ public class Player : MonoBehaviour, IObstacle
         interfaceDataSO.SetTargetObject(null);
     }
 
-    [ContextMenu("Take Damage")]
     public void TakeDamage(int damage, bool ignoreInvulnerability = false)
     {
         if (invulnerabilityTimer <= 0 || ignoreInvulnerability)

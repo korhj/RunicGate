@@ -12,16 +12,27 @@ public class MouseController : MonoBehaviour
     [SerializeField]
     private LayerMask clickableTileMask;
     public event EventHandler<OnTileSelectedEventArgs> OnTileSelected;
+    public event EventHandler<EventArgs> OnTileDoubleClicked;
 
     public class OnTileSelectedEventArgs : EventArgs
     {
         public SelectedTile targetSelectedTile;
     }
 
+    [SerializeField]
+    private float doubleClickTimer;
+    private float lastClickTime;
+
     private void Update()
     {
         if (Mouse.current.leftButton.wasPressedThisFrame)
         {
+            if (Time.time - lastClickTime < doubleClickTimer)
+            {
+                OnTileDoubleClicked?.Invoke(this, EventArgs.Empty);
+                return;
+            }
+            lastClickTime = Time.time;
             Collider2D clicked = GetClickedCollider();
             if (clicked == null)
                 return;

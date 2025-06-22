@@ -644,6 +644,28 @@ TextureImporter:
       indices: 
       edges: []
       weights: []
+    - serializedVersion: 2
+      name: 64bitTiles_23
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 384
+        width: 64
+        height: 64
+      alignment: 9
+      pivot: {x: 0.5, y: 0.75}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2a73355b548bc7d478771cf81e670851
+      internalID: 1394940421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -674,6 +696,7 @@ TextureImporter:
       64bitTiles_20: -1226105231
       64bitTiles_21: -1616963128
       64bitTiles_22: 712397489
+      64bitTiles_23: 1394940421
       64bitTiles_3: 1798275601
       64bitTiles_4: 1204910881
       64bitTiles_5: 701195058

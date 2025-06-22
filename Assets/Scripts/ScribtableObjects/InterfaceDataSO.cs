@@ -32,6 +32,10 @@ public class InterfaceDataSO : ScriptableObject
     {
         if (playerHealthPercent != value)
         {
+            if (value > 1)
+            {
+                value = 1;
+            }
             playerHealthPercent = value;
             onHealthChanged.Invoke(playerHealthPercent);
         }

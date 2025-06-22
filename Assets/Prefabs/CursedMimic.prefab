@@ -134,7 +134,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fd35783d7abe8c4590d852950422aa6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startingTilePos: {x: 9, y: 3, z: 2}
+  startingTilePos: {x: 0, y: -1, z: 0}
 --- !u!60 &369672528082228683
 PolygonCollider2D:
   m_ObjectHideFlags: 0
