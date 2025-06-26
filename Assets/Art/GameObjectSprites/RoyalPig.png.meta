@@ -81,7 +81,7 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 64
+    maxTextureSize: 128
     resizeAlgorithm: 0
     textureFormat: -1
     textureCompression: 0
@@ -151,10 +151,10 @@ TextureImporter:
       name: RoyalPig_0
       rect:
         serializedVersion: 2
-        x: 4
-        y: 32
-        width: 26
-        height: 22
+        x: 0
+        y: 96
+        width: 32
+        height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.2}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -173,10 +173,10 @@ TextureImporter:
       name: RoyalPig_1
       rect:
         serializedVersion: 2
-        x: 34
-        y: 32
-        width: 26
-        height: 22
+        x: 32
+        y: 96
+        width: 32
+        height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.2}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -195,10 +195,10 @@ TextureImporter:
       name: RoyalPig_2
       rect:
         serializedVersion: 2
-        x: 4
-        y: 0
-        width: 25
-        height: 25
+        x: 64
+        y: 96
+        width: 32
+        height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.2}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -217,10 +217,10 @@ TextureImporter:
       name: RoyalPig_3
       rect:
         serializedVersion: 2
-        x: 35
-        y: 0
-        width: 25
-        height: 25
+        x: 96
+        y: 96
+        width: 32
+        height: 32
       alignment: 9
       pivot: {x: 0.5, y: 0.2}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -231,6 +231,94 @@ TextureImporter:
       bones: []
       spriteID: f9bd98039288a17e0800000000000000
       internalID: -1793971791064343649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RoyalPig_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 64
+        width: 32
+        height: 32
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c1738bcae370a194e8a7bb9b895205d1
+      internalID: 1624320460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RoyalPig_5
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 64
+        width: 32
+        height: 32
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8d916d83af8bf5b448e3a88313309f23
+      internalID: 1480495671
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RoyalPig_6
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 64
+        width: 32
+        height: 32
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f0dd786f068409945b6550a7b9824c14
+      internalID: 349431761
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: RoyalPig_7
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 64
+        width: 32
+        height: 32
+      alignment: 9
+      pivot: {x: 0.5, y: 0.2}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9ccf00e2aaac3044b909c186d6310e9d
+      internalID: 338186373
       vertices: []
       indices: 
       edges: []
@@ -253,6 +341,10 @@ TextureImporter:
       RoyalPig_1: -3993403444021353612
       RoyalPig_2: -1634685168741604989
       RoyalPig_3: -1793971791064343649
+      RoyalPig_4: 1624320460
+      RoyalPig_5: 1480495671
+      RoyalPig_6: 349431761
+      RoyalPig_7: 338186373
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

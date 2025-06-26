@@ -17,6 +17,16 @@ public static class Loader
         SceneManager.LoadScene(targetScene.ToString());
     }
 
+    public static void LoadMainMenu()
+    {
+        SceneManager.LoadScene(Scene.MainMenuScene.ToString());
+    }
+
+    public static void ReLoad()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
     public static void LoadNextStage()
     {
         int currentIndex = SceneManager.GetActiveScene().buildIndex;

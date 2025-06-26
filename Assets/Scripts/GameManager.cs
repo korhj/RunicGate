@@ -15,24 +15,34 @@ public class GameManager : MonoBehaviour
     [SerializeField]
     InterfaceDataSO interfaceDataSO;
 
+    [SerializeField]
+    GameOverUI gameOverUI;
+
+    [SerializeField]
+    PauseUI pauseUI;
+
     void Awake()
     {
         if (stageDataSO == null)
         {
             Debug.LogError("StageDataSO is missing or has no stages");
         }
+        gameOverUI.gameObject.SetActive(false);
+        Time.timeScale = 1f;
     }
 
     private void OnEnable()
     {
         player.OnPlayerDeath += (e, _) => GameOver();
         MapManager.Instance.OnStageClear += (e, _) => StageClear();
+        pauseUI.TogglePause += (e, _) => TogglePause();
     }
 
     private void OnDisable()
     {
         player.OnPlayerDeath -= (e, _) => GameOver();
         MapManager.Instance.OnStageClear -= (e, _) => StageClear();
+        pauseUI.TogglePause -= (e, _) => TogglePause();
     }
 
     private void StageClear()
@@ -46,6 +56,17 @@ public class GameManager : MonoBehaviour
 
     private void GameOver()
     {
-        throw new NotImplementedException();
+        gameOverUI.gameObject.SetActive(true);
+        Time.timeScale = 0f;
+    }
+
+    private void TogglePause()
+    {
+        if (Time.timeScale == 0f)
+        {
+            Time.timeScale = 1f;
+            return;
+        }
+        Time.timeScale = 0f;
     }
 }

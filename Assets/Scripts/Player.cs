@@ -57,6 +57,18 @@ public class Player : MonoBehaviour, IObstacle
     [SerializeField]
     private Sprite rightSprite;
 
+    [SerializeField]
+    private Sprite withMimicUpSprite;
+
+    [SerializeField]
+    private Sprite withMimicDownSprite;
+
+    [SerializeField]
+    private Sprite withMimicLeftSprite;
+
+    [SerializeField]
+    private Sprite withMimicRightSprite;
+
     InputAction moveAction;
     private PathFinder pathFinder;
     private Vector3Int currentTilePos;
@@ -163,6 +175,21 @@ public class Player : MonoBehaviour, IObstacle
     private void UpdateSpriteDirection(Vector2Int direction)
     {
         playerDirection = direction;
+
+        if (carriedObject != null)
+        {
+            if (MathF.Abs(direction.x) > 0)
+            {
+                spriteRenderer.sprite =
+                    direction.x > 0 ? withMimicRightSprite : withMimicLeftSprite;
+            }
+            else
+            {
+                spriteRenderer.sprite = direction.y > 0 ? withMimicUpSprite : withMimicDownSprite;
+            }
+            return;
+        }
+
         if (MathF.Abs(direction.x) > 0)
         {
             spriteRenderer.sprite = direction.x > 0 ? rightSprite : leftSprite;
@@ -195,7 +222,8 @@ public class Player : MonoBehaviour, IObstacle
                 cursedMimic.DropMimic(tileToCheck);
                 carriedObject = null;
                 interfaceDataSO.SetPlayerHasObject(false);
-                interfaceDataSO.SetTargetObject(cursedMimic.gameObject);
+                SetTargetObject();
+                UpdateSpriteDirection(playerDirection);
                 return;
             }
         }
@@ -212,6 +240,7 @@ public class Player : MonoBehaviour, IObstacle
                 {
                     carriedObject = interactResult;
                     interfaceDataSO.SetPlayerHasObject(true);
+                    UpdateSpriteDirection(playerDirection);
                     SetTargetObject();
                 }
                 return;

@@ -15,7 +15,7 @@ MonoBehaviour:
   playerHealthPercent: 0
   runicGateCount: 0
   targetObject: {fileID: 0}
-  playerHasObject: 1
+  playerHasMimic: 0
   onHealthChanged:
     m_PersistentCalls:
       m_Calls: []
