@@ -75,7 +75,9 @@ public class MapManager : MonoBehaviour
                 SelectedTile selectedTile = Instantiate(selectedTilePrefab);
                 selectedTile.transform.SetParent(child);
 
-                selectedTile.transform.position = child.transform.position;
+                //selectedTile.transform.position = child.transform.position;
+                Vector3 worldPos = TileToWorld(childTilePos);
+                selectedTile.transform.position = new(worldPos.x, worldPos.y, worldPos.z + 1);
                 selectedTile.tilePos = childTilePos;
                 selectedTile.cost = childGameObjectCost;
                 Map.Add(tileKey, selectedTile);
